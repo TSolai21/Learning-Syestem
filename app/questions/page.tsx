@@ -10,6 +10,8 @@ import { ChevronDown, ChevronUp, ArrowLeft, ArrowRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/api"
 import { Loader } from "@/components/loader"
+import questionImage from "@/assets/images/question.png"
+import Image from "next/image"
 
 interface Question {
   question_id: number
@@ -113,6 +115,7 @@ export default function QuestionsPage() {
 
   // Handle next button click
   const handleNext = async () => {
+    setExpandedQuestion(1)
     if (validateTab()) {
       if (activeTab === 5) {
         try {
@@ -185,9 +188,8 @@ export default function QuestionsPage() {
               <Card key={question.question_id} className="overflow-hidden">
                 <button
                   onClick={() => setExpandedQuestion(i + 1)}
-                  className={`w-full p-4 text-left rounded flex justify-between items-center ${
-                    expandedQuestion === i + 1 ? "bg-primary/10" : "bg-white"
-                  }`}
+                  className={`w-full p-4 text-left rounded flex justify-between items-center ${expandedQuestion === i + 1 ? "bg-primary/10" : "bg-white"
+                    }`}
                 >
                   <span className="text-lg font-medium">{question.question}</span>
                   {expandedQuestion === i + 1 ? <ChevronUp /> : <ChevronDown />}
@@ -197,8 +199,8 @@ export default function QuestionsPage() {
                   <CardContent className="pt-4">
                     <RadioGroup
                       value={
-                        selectedOptions[question.question_id]?.option_id.toString() ||
-                        question.selected_option?.selected_option_id.toString() ||
+                        selectedOptions[question.question_id]?.option_id?.toString() ||
+                        question.selected_option?.selected_option_id?.toString() ||
                         ""
                       }
                       onValueChange={(value) =>
@@ -228,7 +230,8 @@ export default function QuestionsPage() {
 
           <div className="flex flex-col items-center justify-center text-center">
             <div className="w-64 h-64 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <img src="/placeholder.svg" alt="Assessment" className="w-48 h-48 object-contain" />
+              {/* <img src="/placeholder.svg" alt="Assessment" className="w-48 h-48 object-contain" /> */}
+              <Image src={questionImage} alt="Assessment" className="w-48 h-48 object-contain" />
             </div>
             <h2 className="text-2xl font-bold text-primary mb-2">Help us understand more about you!</h2>
             <p className="text-gray-600">Your answers will help us personalize your learning experience.</p>

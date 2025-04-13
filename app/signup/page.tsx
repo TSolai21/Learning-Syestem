@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { api } from "@/lib/api"
+import loginImage from "@/assets/images/login.png"
 
 const signupSchema = z
   .object({
@@ -77,7 +78,14 @@ export default function SignupPage() {
       {/* Left side - Image */}
       <div className="hidden md:flex md:w-1/2 bg-primary">
         <div className="flex items-center justify-center w-full h-full">
-          <Image src="/placeholder.svg" alt="Signup" width={600} height={600} className="object-cover" priority />
+          <Image
+            src={loginImage || "/placeholder.svg"}
+            alt="Login"
+            width={600}
+            height={600}
+            className="object-cover"
+            priority
+          />
         </div>
       </div>
 
