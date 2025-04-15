@@ -100,7 +100,12 @@ export default function ProfilePage() {
           user_id: user.user_id,
         })
 
-        setUserDetails(response.data?.user_details?.user_details || null)
+        if (response.data?.user_details?.user_details) {
+          setUserDetails(response.data?.user_details?.user_details || null)
+        } else {
+          setIsEditing(true)
+        }
+
         setUserCourses(response.data?.user_details?.enrolled_courses || [])
         setUserBadges(response.data?.user_details?.user_badges || [])
         setUserCertificates(response.data?.user_details?.user_certifications || [])
