@@ -49,6 +49,8 @@ interface UserDetails {
   ambition: string
   work_experience: number
   area_of_interest: string
+  age: number
+  job_title: string
 }
 
 interface Certificate {
@@ -80,6 +82,11 @@ interface Course {
   rating: number
 }
 
+interface ValidationError {
+  field: string
+  message: string
+}
+
 export default function ProfilePage() {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null)
   const [userCourses, setUserCourses] = useState<Course[]>([])
@@ -89,6 +96,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<UserDetails | null>(null)
   const { toast } = useToast()
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -100,17 +108,42 @@ export default function ProfilePage() {
           user_id: user.user_id,
         })
 
-        if (response.data?.user_details?.user_details) {
-          setUserDetails(response.data?.user_details?.user_details || null)
+        const userDetailsFromApi = response.data?.user_details?.user_details
+
+        if (userDetailsFromApi) {
+          // Existing user
+          setUserDetails(userDetailsFromApi)
+          setEditData(null)
+          setIsEditing(false)
         } else {
-          setIsEditing(true)
+          // New user - initialize with empty details
+          const emptyUserDetails = {
+            user_id: user.user_id,
+            user_name: "",
+            designation: "",
+            current_organization: "",
+            city: "",
+            highest_qualification: "",
+            year_of_passedout: "",
+            mail_id: "",
+            mobile_number: "",
+            portfolio_website: "",
+            linkedin_profile: "",
+            github_profile: "",
+            ambition: "",
+            work_experience: 0,
+            area_of_interest: "",
+            age: 0,
+            job_title: ""
+          }
+          setUserDetails(null)
+          setEditData(emptyUserDetails)
+          setIsEditing(true) // New users should start in edit mode
         }
 
         setUserCourses(response.data?.user_details?.enrolled_courses || [])
         setUserBadges(response.data?.user_details?.user_badges || [])
         setUserCertificates(response.data?.user_details?.user_certifications || [])
-
-        setEditData(response.data?.user_details?.user_details || null)
       } catch (error) {
         console.error("Error fetching user details:", error)
         toast({
@@ -126,36 +159,279 @@ export default function ProfilePage() {
     fetchUserDetails()
   }, [toast])
 
+  const validateUserDetails = (data: Partial<UserDetails>): ValidationError[] => {
+    const errors: ValidationError[] = []
+
+    // Required fields validation
+    const requiredFields = [
+      { field: 'user_name', label: 'Full Name' },
+      { field: 'designation', label: 'Designation' },
+      { field: 'highest_qualification', label: 'Qualification' },
+      { field: 'mail_id', label: 'Email' },
+      { field: 'mobile_number', label: 'Mobile Number' },
+      { field: 'age', label: 'Age' },
+      { field: 'job_title', label: 'Job Title' }
+    ]
+
+    requiredFields.forEach(({ field, label }) => {
+      const value = data[field as keyof UserDetails]
+      if (!value || (typeof value === 'string' && !value.trim())) {
+        errors.push({
+          field,
+          message: `${label} is required`
+        })
+      }
+    })
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (data.mail_id && !emailRegex.test(data.mail_id)) {
+      errors.push({
+        field: 'mail_id',
+        message: 'Please enter a valid email address'
+      })
+    }
+
+    // Mobile number validation
+    const mobileRegex = /^\d{10}$/
+    if (data.mobile_number && !mobileRegex.test(data.mobile_number)) {
+      errors.push({
+        field: 'mobile_number',
+        message: 'Please enter a valid 10-digit mobile number'
+      })
+    }
+
+    // URL validations
+    const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/
+    if (data.portfolio_website && !urlRegex.test(data.portfolio_website)) {
+      errors.push({
+        field: 'portfolio_website',
+        message: 'Please enter a valid website URL'
+      })
+    }
+    if (data.linkedin_profile && !urlRegex.test(data.linkedin_profile)) {
+      errors.push({
+        field: 'linkedin_profile',
+        message: 'Please enter a valid LinkedIn URL'
+      })
+    }
+    if (data.github_profile && !urlRegex.test(data.github_profile)) {
+      errors.push({
+        field: 'github_profile',
+        message: 'Please enter a valid GitHub URL'
+      })
+    }
+
+    // Work experience validation
+    if (data.work_experience && (isNaN(Number(data.work_experience)) || Number(data.work_experience) < 0)) {
+      errors.push({
+        field: 'work_experience',
+        message: 'Work experience must be a valid number of years'
+      })
+    }
+
+    // Age validation
+    if (data.age !== undefined) {
+      const age = Number(data.age)
+      if (isNaN(age) || age < 18 || age > 100) {
+        errors.push({
+          field: 'age',
+          message: 'Age must be between 18 and 100'
+        })
+      }
+    }
+
+    return errors
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editData) return
 
+    const value = e.target.type === 'number' ?
+      e.target.value === '' ? 0 : parseInt(e.target.value, 10) :
+      e.target.value
+
+    // Clear error for the field being changed
+    setFieldErrors(prev => ({
+      ...prev,
+      [e.target.name]: ''
+    }))
+
     setEditData({
       ...editData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     })
   }
 
   const handleSave = async () => {
     if (!editData) return
 
-    try {
-      await api.put("/userdetails/update", editData)
+    // Validate the data before sending
+    const validationErrors = validateUserDetails(editData)
 
-      setUserDetails(editData)
-      setIsEditing(false)
-
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
+    if (validationErrors.length > 0) {
+      const newFieldErrors: Record<string, string> = {}
+      validationErrors.forEach(error => {
+        newFieldErrors[error.field] = error.message
       })
-    } catch (error) {
-      console.error("Error updating profile:", error)
+      setFieldErrors(newFieldErrors)
+
       toast({
-        title: "Error",
-        description: "Failed to update profile",
+        title: "Validation Error",
+        description: validationErrors[0].message,
         variant: "destructive",
       })
+      return
     }
+
+    setFieldErrors({})
+    setLoading(true)
+
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+
+      const dataToSend = {
+        ...editData,
+        user_id: user.user_id,
+        work_experience: typeof editData.work_experience === 'string' ?
+          parseInt(editData.work_experience, 10) || 0 :
+          editData.work_experience || 0,
+        age: typeof editData.age === 'string' ?
+          parseInt(editData.age, 10) || 0 :
+          editData.age || 0
+      }
+
+      const response = await api.put("/userdetails/update", dataToSend)
+
+      // Check if response contains success message or user details
+      if (response.data?.message?.toLowerCase().includes('success') ||
+        response.data?.status === "success" ||
+        response.data?.user_details) {
+
+        // Use the returned user details or the sent data
+        const updatedUserDetails = response.data?.user_details || dataToSend
+
+        // Update all states synchronously
+        setUserDetails(updatedUserDetails)
+        setEditData(null)
+        setFieldErrors({})
+        setIsEditing(false)
+
+        // Show success message
+        toast({
+          title: "Success",
+          description: response.data?.message || "Profile updated successfully",
+        })
+
+        // Refresh data in the background
+        try {
+          const refreshResponse = await api.post("/userdetails", {
+            user_id: user.user_id,
+          })
+
+          if (refreshResponse.data?.user_details?.user_details) {
+            const refreshedData = refreshResponse.data.user_details
+            setUserDetails(refreshedData.user_details)
+            setUserCourses(refreshedData.enrolled_courses || [])
+            setUserBadges(refreshedData.user_badges || [])
+            setUserCertificates(refreshedData.user_certifications || [])
+          }
+        } catch (refreshError) {
+          console.error("Error refreshing data:", refreshError)
+        }
+      } else if (response.data?.error) {
+        // Handle explicit error from the server
+        throw new Error(response.data.error)
+      } else {
+        throw new Error("Failed to update profile")
+      }
+    } catch (error: any) {
+      console.error("Error updating profile:", error)
+      // Only show error toast and keep edit mode if it's a real error
+      if (!error.message?.toLowerCase().includes('success')) {
+        setIsEditing(true)
+        toast({
+          title: "Error",
+          description: error.response?.data?.message || error.message || "Failed to update profile. Please try again.",
+          variant: "destructive",
+        })
+      } else {
+        // If the error message contains 'success', treat it as a success
+        setUserDetails(editData)
+        setEditData(null)
+        setFieldErrors({})
+        setIsEditing(false)
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        })
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    if (userDetails) {
+      // Existing user - reset to current details
+      setEditData(null)
+      setIsEditing(false)
+    } else {
+      // New user - keep in edit mode with empty details
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const emptyUserDetails = {
+        user_id: user.user_id,
+        user_name: "",
+        designation: "",
+        current_organization: "",
+        city: "",
+        highest_qualification: "",
+        year_of_passedout: "",
+        mail_id: "",
+        mobile_number: "",
+        portfolio_website: "",
+        linkedin_profile: "",
+        github_profile: "",
+        ambition: "",
+        work_experience: 0,
+        area_of_interest: "",
+        age: 0,
+        job_title: ""
+      }
+      setEditData(emptyUserDetails)
+      setIsEditing(true)
+    }
+    setFieldErrors({})
+  }
+
+  const handleEditClick = () => {
+    if (userDetails) {
+      setEditData(userDetails)
+    } else {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      const emptyUserDetails = {
+        user_id: user.user_id,
+        user_name: "",
+        designation: "",
+        current_organization: "",
+        city: "",
+        highest_qualification: "",
+        year_of_passedout: "",
+        mail_id: "",
+        mobile_number: "",
+        portfolio_website: "",
+        linkedin_profile: "",
+        github_profile: "",
+        ambition: "",
+        work_experience: 0,
+        area_of_interest: "",
+        age: 0,
+        job_title: ""
+      }
+      setEditData(emptyUserDetails)
+    }
+    setFieldErrors({})
+    setIsEditing(true)
   }
 
   if (loading) {
@@ -225,7 +501,7 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  <Button onClick={() => setIsEditing(true)} className="w-full" variant="outline">
+                  <Button onClick={handleEditClick} className="w-full" variant="outline">
                     <Edit size={16} className="mr-2" /> Edit Profile
                   </Button>
                 </div>
@@ -293,17 +569,14 @@ export default function ProfilePage() {
                 <Card>
                   <CardContent className="p-6">
                     {isEditing ? (
-                      <div className="space-y-6">
+                      <div className="space-y-8">
                         <div className="flex justify-between items-center">
                           <h2 className="text-xl font-bold">Edit Profile</h2>
                           <div className="flex gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => {
-                                setIsEditing(false)
-                                setEditData(userDetails)
-                              }}
+                              onClick={handleCancel}
                             >
                               <X size={16} className="mr-2" /> Cancel
                             </Button>
@@ -313,75 +586,200 @@ export default function ProfilePage() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {[
-                            { name: "user_name", label: "Full Name", icon: User },
-                            { name: "designation", label: "Designation", icon: Briefcase },
-                            { name: "city", label: "City", icon: MapPin },
-                            { name: "highest_qualification", label: "Qualification", icon: GraduationCap },
-                            { name: "mail_id", label: "Email", icon: Mail },
-                            { name: "mobile_number", label: "Mobile", icon: Smartphone },
-                            { name: "portfolio_website", label: "Website", icon: Globe },
-                            { name: "linkedin_profile", label: "LinkedIn", icon: Linkedin },
-                            { name: "github_profile", label: "GitHub", icon: Github },
-                            { name: "area_of_interest", label: "Interests", icon: Star },
-                            { name: "ambition", label: "Ambition", icon: Target },
-                            { name: "work_experience", label: "Experience (years)", icon: Briefcase, type: "number" },
-                          ].map((field) => (
-                            <div key={field.name} className="space-y-1">
-                              <Label htmlFor={field.name}>{field.label}</Label>
-                              <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                  <field.icon size={16} />
+                        {/* Personal Information Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Personal Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            {[
+                              { name: "user_name", label: "Full Name", icon: User },
+                              { name: "age", label: "Age", icon: User, type: "number" },
+                              { name: "mail_id", label: "Email", icon: Mail },
+                              { name: "mobile_number", label: "Mobile", icon: Smartphone },
+                              { name: "city", label: "City", icon: MapPin },
+                            ].map((field) => (
+                              <div key={field.name} className="space-y-1">
+                                <Label htmlFor={field.name} className="text-sm font-medium">{field.label}</Label>
+                                <div className="relative">
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <field.icon size={16} />
+                                  </div>
+                                  <Input
+                                    type={field.type || "text"}
+                                    id={field.name}
+                                    name={field.name}
+                                    value={editData?.[field.name as keyof UserDetails] || ""}
+                                    onChange={handleInputChange}
+                                    className={`pl-10 ${fieldErrors[field.name] ? 'border-red-500' : ''}`}
+                                    placeholder={`Enter your ${field.label.toLowerCase()}`}
+                                  />
                                 </div>
-                                <Input
-                                  type={field.type || "text"}
-                                  id={field.name}
-                                  name={field.name}
-                                  value={editData?.[field.name as keyof UserDetails] || ""}
-                                  onChange={handleInputChange}
-                                  className="pl-10"
-                                  placeholder={`Enter your ${field.label.toLowerCase()}`}
-                                />
+                                {fieldErrors[field.name] && (
+                                  <p className="text-sm text-red-500 mt-1">{fieldErrors[field.name]}</p>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Professional Information Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Professional Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            {[
+                              { name: "designation", label: "Designation", icon: Briefcase },
+                              { name: "job_title", label: "Job Title", icon: Briefcase },
+                              { name: "current_organization", label: "Organization", icon: Briefcase },
+                              { name: "work_experience", label: "Experience (years)", icon: Briefcase, type: "number" },
+                              { name: "highest_qualification", label: "Qualification", icon: GraduationCap },
+                              { name: "year_of_passedout", label: "Graduation Year", icon: Calendar },
+                              { name: "area_of_interest", label: "Areas of Interest", icon: Star },
+                              { name: "ambition", label: "Career Ambition", icon: Target },
+                            ].map((field) => (
+                              <div key={field.name} className="space-y-1">
+                                <Label htmlFor={field.name} className="text-sm font-medium">{field.label}</Label>
+                                <div className="relative">
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <field.icon size={16} />
+                                  </div>
+                                  <Input
+                                    type={field.type || "text"}
+                                    id={field.name}
+                                    name={field.name}
+                                    value={editData?.[field.name as keyof UserDetails] || ""}
+                                    onChange={handleInputChange}
+                                    className={`pl-10 ${fieldErrors[field.name] ? 'border-red-500' : ''}`}
+                                    placeholder={`Enter your ${field.label.toLowerCase()}`}
+                                  />
+                                </div>
+                                {fieldErrors[field.name] && (
+                                  <p className="text-sm text-red-500 mt-1">{fieldErrors[field.name]}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Social Links Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Social & Portfolio Links</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            {[
+                              { name: "portfolio_website", label: "Portfolio Website", icon: Globe },
+                              { name: "linkedin_profile", label: "LinkedIn Profile", icon: Linkedin },
+                              { name: "github_profile", label: "GitHub Profile", icon: Github },
+                            ].map((field) => (
+                              <div key={field.name} className="space-y-1">
+                                <Label htmlFor={field.name} className="text-sm font-medium">{field.label}</Label>
+                                <div className="relative">
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <field.icon size={16} />
+                                  </div>
+                                  <Input
+                                    type="url"
+                                    id={field.name}
+                                    name={field.name}
+                                    value={editData?.[field.name as keyof UserDetails] || ""}
+                                    onChange={handleInputChange}
+                                    className={`pl-10 ${fieldErrors[field.name] ? 'border-red-500' : ''}`}
+                                    placeholder={`Enter your ${field.label.toLowerCase()}`}
+                                  />
+                                </div>
+                                {fieldErrors[field.name] && (
+                                  <p className="text-sm text-red-500 mt-1">{fieldErrors[field.name]}</p>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     ) : (
-                      <div>
-                        <h2 className="text-xl font-bold mb-6">Profile Details</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {[
-                            { icon: User, label: "Full Name", value: userDetails?.user_name },
-                            { icon: Briefcase, label: "Designation", value: userDetails?.designation },
-                            { icon: MapPin, label: "City", value: userDetails?.city },
-                            {
-                              icon: GraduationCap,
-                              label: "Highest Qualification",
-                              value: userDetails?.highest_qualification,
-                            },
-                            { icon: Calendar, label: "Graduation Year", value: userDetails?.year_of_passedout },
-                            { icon: Mail, label: "Email", value: userDetails?.mail_id },
-                            { icon: Smartphone, label: "Mobile", value: userDetails?.mobile_number },
-                            { icon: Target, label: "Ambition", value: userDetails?.ambition },
-                            {
-                              icon: Book,
-                              label: "Work Experience",
-                              value: `${userDetails?.work_experience || 0} years`,
-                            },
-                            { icon: Star, label: "Area of Interest", value: userDetails?.area_of_interest },
-                          ].map((item, index) => (
-                            <div key={index} className="bg-gray-50 p-4 rounded-lg flex items-start gap-3">
-                              <div className="p-2 bg-white rounded-full">
-                                <item.icon size={18} className="text-primary" />
+                      <div className="space-y-8">
+                        <div className="flex justify-between items-center mb-6">
+                          <h2 className="text-xl font-bold">Profile Details</h2>
+                          <Button onClick={handleEditClick} variant="outline" size="sm">
+                            <Edit size={16} className="mr-2" /> Edit Profile
+                          </Button>
+                        </div>
+
+                        {/* Personal Information Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Personal Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                              { icon: User, label: "Full Name", value: userDetails?.user_name },
+                              { icon: User, label: "Age", value: userDetails?.age },
+                              { icon: Mail, label: "Email", value: userDetails?.mail_id },
+                              { icon: Smartphone, label: "Mobile", value: userDetails?.mobile_number },
+                              { icon: MapPin, label: "City", value: userDetails?.city },
+                            ].map((item, index) => (
+                              <div key={index} className="bg-gray-50 p-4 rounded-lg flex items-start gap-3">
+                                <div className="p-2 bg-white rounded-full">
+                                  <item.icon size={18} className="text-primary" />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500">{item.label}</p>
+                                  <p className="font-medium">{item.value || "Not specified"}</p>
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm text-gray-500">{item.label}</p>
-                                <p className="font-medium">{item.value || "Not specified"}</p>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Professional Information Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Professional Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                              { icon: Briefcase, label: "Designation", value: userDetails?.designation },
+                              { icon: Briefcase, label: "Job Title", value: userDetails?.job_title },
+                              { icon: Briefcase, label: "Organization", value: userDetails?.current_organization },
+                              { icon: Book, label: "Work Experience", value: `${userDetails?.work_experience || 0} years` },
+                              { icon: GraduationCap, label: "Qualification", value: userDetails?.highest_qualification },
+                              { icon: Calendar, label: "Graduation Year", value: userDetails?.year_of_passedout },
+                              { icon: Star, label: "Areas of Interest", value: userDetails?.area_of_interest },
+                              { icon: Target, label: "Career Ambition", value: userDetails?.ambition },
+                            ].map((item, index) => (
+                              <div key={index} className="bg-gray-50 p-4 rounded-lg flex items-start gap-3">
+                                <div className="p-2 bg-white rounded-full">
+                                  <item.icon size={18} className="text-primary" />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500">{item.label}</p>
+                                  <p className="font-medium">{item.value || "Not specified"}</p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Social Links Section */}
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-700">Social & Portfolio Links</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                              { icon: Globe, label: "Portfolio Website", value: userDetails?.portfolio_website },
+                              { icon: Linkedin, label: "LinkedIn Profile", value: userDetails?.linkedin_profile },
+                              { icon: Github, label: "GitHub Profile", value: userDetails?.github_profile },
+                            ].map((item, index) => (
+                              <div key={index} className="bg-gray-50 p-4 rounded-lg flex items-start gap-3">
+                                <div className="p-2 bg-white rounded-full">
+                                  <item.icon size={18} className="text-primary" />
+                                </div>
+                                <div>
+                                  <p className="text-sm text-gray-500">{item.label}</p>
+                                  <p className="font-medium">
+                                    {item.value ? (
+                                      <a href={item.value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                        {item.value}
+                                      </a>
+                                    ) : (
+                                      "Not specified"
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
