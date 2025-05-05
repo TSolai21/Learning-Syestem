@@ -23,7 +23,9 @@ interface CourseNavigationProps {
   courseStatus: any
   onContentSelect: (id: string) => void
   setIsSidebarOpen: (open: boolean) => void
+  setShowAssessment: (open: boolean) => void
   activeContentId: string
+  showAssessment: boolean
 }
 
 export function CourseNavigation({
@@ -33,10 +35,11 @@ export function CourseNavigation({
   onContentSelect,
   setIsSidebarOpen,
   activeContentId,
+  showAssessment,
+  setShowAssessment
 }: CourseNavigationProps) {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set())
 
-  // Transform course data into a structured format
   const courseStructure = courseContent.reduce(
     (acc, item) => {
       const { course_mastertitle_breakdown_id, course_mastertitle_breakdown, course_subtitle_id, course_subtitle } =
@@ -65,7 +68,6 @@ export function CourseNavigation({
     >,
   )
 
-  // Create a map of subtitle progress
   const progressMap =
     courseProgress?.reduce(
       (acc, { course_subtitle_id, course_subtitle_progress }) => {
@@ -91,8 +93,7 @@ export function CourseNavigation({
     <nav className="p-4 bg-white h-full">
       <h2 className="text-xl font-bold mb-4 text-primary">Course Contents</h2>
       <ul className="space-y-4">
-        {Object.values(courseStructure).map(({ id, title, subtitles }) => {
-          // Calculate section progress
+        {!showAssessment && Object.values(courseStructure).map(({ id, title, subtitles }) => {
           const sectionStatus = courseStatus?.data?.find((s: any) => s.course_master_breakdown_id === id)
           const sectionProgress = sectionStatus?.progress_percentage || 0
 
@@ -129,13 +130,11 @@ export function CourseNavigation({
                               onContentSelect(subId)
                               setIsSidebarOpen(false)
                             }}
-                            className={`text-sm flex-1 text-left px-3 py-2 rounded transition-all ${
-                              isActive ? "bg-primary/10 text-primary font-medium" : "text-gray-700 hover:bg-gray-100"
-                            }`}
+                            className={`text-sm flex-1 text-left px-3 py-2 rounded transition-all ${isActive ? "bg-primary/10 text-primary font-medium" : "text-gray-700 hover:bg-gray-100"
+                              }`}
                           >
                             {subTitle}
                           </button>
-                          {/* {progress > 0 && <span className="text-xs font-medium text-gray-500 mr-2">{progress}%</span>} */}
                         </li>
                       )
                     })}
@@ -145,8 +144,31 @@ export function CourseNavigation({
             </li>
           )
         })}
+        {showAssessment && (
+          <li className="border-b pb-2 last:border-none">
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  onContentSelect("assessment")
+                  setIsSidebarOpen(false)
+                }}
+                className={`text-sm flex-1 text-left px-4 py-2 rounded transition-all ${activeContentId === "assessment" ? "bg-primary/10 text-primary font-medium" : "text-gray-700 hover:bg-gray-100"
+                  }`}
+              >
+                Course Assessment
+              </button>
+            </div>
+          </li>
+        )}
+
+        {showAssessment &&
+          <li className="border-b pb-2 last:border-none"><button className="text-sm p-2" onClick={() => {
+            setShowAssessment(false)
+          }}>Back to course</button></li>
+        }
+
+
       </ul>
     </nav>
   )
 }
-

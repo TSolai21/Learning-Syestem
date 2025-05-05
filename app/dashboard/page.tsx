@@ -181,7 +181,7 @@ const Home = () => {
               education.
             </p>
             <Link href="/dashboard/courses">
-              <Button className="bg-yellow-600 hover:bg-yellow-700 px-8 py-3 rounded-lg text-white text-lg font-semibold shadow-md transition-all">
+              <Button className="bg-yellow-600 mt-4 hover:bg-yellow-700 px-8 py-3 rounded-lg text-white text-lg font-semibold shadow-md transition-all">
                 Get Started
               </Button>
             </Link>
