@@ -1,159 +1,3 @@
-// "use client"
-
-// import { useEffect, useState } from "react"
-// import { Card, CardContent } from "@/components/ui/card"
-// import { Button } from "@/components/ui/button"
-// import Link from "next/link"
-// import { ArrowRight, BookOpen, Users, Award, ChevronRight } from "lucide-react"
-// import { api } from "@/lib/api"
-// import { CourseCard } from "@/components/course-card"
-
-// interface Course {
-//   course_id: number
-//   course_name: string
-//   course_short_description: string
-//   course_profile_image: string
-//   course_type: string
-//   course_duration_hours: number
-//   course_duration_minutes: number
-//   course_progress: number
-//   enrolled_students: number
-//   lessons_count: number
-//   rating: number
-// }
-
-// export default function DashboardPage() {
-//   const [courses, setCourses] = useState<Course[]>([])
-//   const [loading, setLoading] = useState(true)
-//   const [user, setUser] = useState<any>(null)
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         setLoading(true)
-//         const userData = JSON.parse(localStorage.getItem("user") || "{}")
-//         setUser(userData)
-
-//         // Fetch courses
-//         const response = await api.get("/course-master")
-//         setCourses(response.data.courses || [])
-//       } catch (error) {
-//         console.error("Error fetching dashboard data:", error)
-//       } finally {
-//         setLoading(false)
-//       }
-//     }
-
-//     fetchData()
-//   }, [])
-
-//   return (
-//     <div className="bg-gray-50 min-h-screen">
-//       {/* Hero Section */}
-//       <section className="bg-gradient-to-b from-primary/10 to-transparent py-12">
-//         <div className="container mx-auto px-4">
-//           <div className="max-w-4xl">
-//             <h1 className="text-4xl font-bold mb-4">Welcome, {user?.username || "Student"}!</h1>
-//             <p className="text-xl text-gray-600 mb-6">Continue your learning journey and explore new courses.</p>
-//             <div className="flex flex-wrap gap-4">
-//               <Button asChild>
-//                 <Link href="/dashboard/courses">
-//                   Browse Courses <ArrowRight className="ml-2 h-4 w-4" />
-//                 </Link>
-//               </Button>
-//               <Button variant="outline" asChild>
-//                 <Link href="/dashboard/ebooks">Explore E-Books</Link>
-//               </Button>
-//             </div>
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* Stats Section */}
-//       <section className="py-12">
-//         <div className="container mx-auto px-4">
-//           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//             <Card>
-//               <CardContent className="flex items-center p-6">
-//                 <div className="rounded-full bg-blue-100 p-3 mr-4">
-//                   <BookOpen className="h-6 w-6 text-blue-600" />
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500">Enrolled Courses</p>
-//                   <h3 className="text-2xl font-bold">{loading ? "..." : "3"}</h3>
-//                 </div>
-//               </CardContent>
-//             </Card>
-
-//             <Card>
-//               <CardContent className="flex items-center p-6">
-//                 <div className="rounded-full bg-green-100 p-3 mr-4">
-//                   <Award className="h-6 w-6 text-green-600" />
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500">Certificates Earned</p>
-//                   <h3 className="text-2xl font-bold">{loading ? "..." : "1"}</h3>
-//                 </div>
-//               </CardContent>
-//             </Card>
-
-//             <Card>
-//               <CardContent className="flex items-center p-6">
-//                 <div className="rounded-full bg-purple-100 p-3 mr-4">
-//                   <Users className="h-6 w-6 text-purple-600" />
-//                 </div>
-//                 <div>
-//                   <p className="text-sm text-gray-500">Learning Hours</p>
-//                   <h3 className="text-2xl font-bold">{loading ? "..." : "12"}</h3>
-//                 </div>
-//               </CardContent>
-//             </Card>
-//           </div>
-//         </div>
-//       </section>
-
-//       {/* Recent Courses Section */}
-//       <section className="py-12">
-//         <div className="container mx-auto px-4">
-//           <div className="flex justify-between items-center mb-8">
-//             <h2 className="text-2xl font-bold">Your Recent Courses</h2>
-//             <Button variant="ghost" asChild>
-//               <Link href="/dashboard/courses" className="flex items-center">
-//                 View all <ChevronRight className="ml-1 h-4 w-4" />
-//               </Link>
-//             </Button>
-//           </div>
-
-//           {loading ? (
-//             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-//               {[1, 2, 3].map((i) => (
-//                 <div key={i} className="h-[320px] bg-gray-100 animate-pulse rounded-lg"></div>
-//               ))}
-//             </div>
-//           ) : courses.length > 0 ? (
-//             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//               {courses.slice(0, 3).map((course) => (
-//                 <CourseCard key={course.course_id} course={course} />
-//               ))}
-//             </div>
-//           ) : (
-//             <Card>
-//               <CardContent className="p-8 text-center">
-//                 <BookOpen className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-//                 <h3 className="text-xl font-medium mb-2">No courses yet</h3>
-//                 <p className="text-gray-500 mb-4">You haven't enrolled in any courses yet.</p>
-//                 <Button asChild>
-//                   <Link href="/dashboard/courses">Browse Courses</Link>
-//                 </Button>
-//               </CardContent>
-//             </Card>
-//           )}
-//         </div>
-//       </section>
-//     </div>
-//   )
-// }
-
 "use client"
 
 import Image from "next/image"
@@ -285,11 +129,37 @@ const Home = () => {
       <section className="py-16">
         <div className="container mx-auto px-6 md:px-12 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-8">Our Partners</h2>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            <Image src={partner1} alt="" width={150} height={60} className="object-contain" />
-            <Image src={partner2} alt="" width={150} height={60} className="object-contain" />
-            <Image src={partner3} alt="" width={150} height={60} className="object-contain" />
-            <Image src={partner4} alt="" width={150} height={60} className="object-contain" />
+          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8">
+            {/* Industry Card */}
+            <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
+              <CardContent className="p-8 flex flex-col items-center justify-center h-full">
+                <h3 className="text-2xl font-semibold mb-4">Industry</h3>
+                <div className="flex flex-col items-center justify-center flex-1">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-8 mt-4">
+                    <Image src={partner1} alt="Industry Partner 1" width={120} height={60} className="object-contain" />
+                    <Image src={partner2} alt="Industry Partner 2" width={120} height={60} className="object-contain" />
+                  </div>
+                  <div className="opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                    <span className="text-gray-500">We are partnered with the best in the industry. Professionals from the industry are our mentors and guide us to make our courses more relevant and practical.</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Institution Card */}
+            <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
+              <CardContent className="p-8 flex flex-col items-center justify-center h-full">
+                <h3 className="text-2xl font-semibold mb-4">Institution</h3>
+                <div className="flex flex-col items-center justify-center flex-1">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-8 mt-4">
+                    <Image src={partner3} alt="Institution Partner 1" width={120} height={60} className="object-contain" />
+                    <Image src={partner4} alt="Institution Partner 2" width={120} height={60} className="object-contain" />
+                  </div>
+                  <div className="opacity-100 group-hover:opacity-0 transition-opacity duration-300">
+                    <span className="text-gray-500">We are partnered with the best institutions in the country as well as abroad, Contacting abroad institution exposure program to our students to make them more competitive in the job market.</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

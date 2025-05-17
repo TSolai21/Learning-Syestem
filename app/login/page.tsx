@@ -58,7 +58,10 @@ export default function LoginPage() {
           description: "Welcome back!",
         })
 
-        if (isAssessmentCompleted) {
+        // Redirect based on site type
+        if (response.data.user.site === "admin") {
+          router.push("/admin")
+        } else if (isAssessmentCompleted) {
           router.push("/dashboard")
         } else {
           router.push("/questions")

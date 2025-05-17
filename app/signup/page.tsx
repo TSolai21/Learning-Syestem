@@ -22,6 +22,7 @@ const signupSchema = z
     email: z.string().email("Please enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
+    uniqueKey: z.string().uuid("Please enter a valid unique key"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -44,23 +45,37 @@ export default function SignupPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      uniqueKey: "",
     },
   })
 
   async function onSubmit(data: SignupFormValues) {
     setIsLoading(true)
     try {
+      // Validate the unique key first
+      const keyResponse = await api.post("/validate-key", {
+        unique_key: data.uniqueKey,
+      })
+      if (!keyResponse.data.valid) {
+        toast({
+          title: "Invalid Key",
+          description: "The unique key is invalid or already used.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+      // Proceed with signup if key is valid
       const response = await api.post("/signup", {
         username: data.fullName,
         email: data.email,
         password: data.password,
+        unique_key: data.uniqueKey,
       })
-
       toast({
         title: "Account created",
         description: "Your account has been created successfully. Please login.",
       })
-
       router.push("/login")
     } catch (error: any) {
       toast({
@@ -178,6 +193,19 @@ export default function SignupPage() {
                             {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                           </Button>
                         </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="uniqueKey"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Unique Key</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your unique key" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
