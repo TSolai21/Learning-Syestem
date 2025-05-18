@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/hooks/use-toast"
 
 interface Course {
   course_id: number
@@ -28,7 +29,7 @@ export default function AdminPage() {
   const [numUsers, setNumUsers] = useState<number>(0)
   const [generatedKeys, setGeneratedKeys] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  
+
   // Course creation states
   const [currentStep, setCurrentStep] = useState(1)
   const [courseData, setCourseData] = useState({
@@ -51,11 +52,46 @@ export default function AdminPage() {
   const [enrollmentId, setEnrollmentId] = useState<number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
+  // Add state for courses and loading
+  const [courses, setCourses] = useState<Course[]>([])
+  const [coursesLoading, setCoursesLoading] = useState(true)
+  const [coursesError, setCoursesError] = useState<string | null>(null)
+
+  // Validation state
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
+
+  const { toast } = useToast()
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  // Validation logic for each step
+  const validateStep = (step: number) => {
+    const errors: { [key: string]: string } = {}
+    if (step === 1) {
+      if (!courseData.course_name.trim()) errors.course_name = "Course name is required"
+      if (!courseData.course_short_description.trim()) errors.course_short_description = "Short description is required"
+      if (!courseData.course_type.trim()) errors.course_type = "Course type is required"
+      if (!courseData.language.trim()) errors.language = "Language is required"
+      if (!courseData.course_duration_hours || courseData.course_duration_hours < 0) errors.course_duration_hours = "Duration (hours) must be 0 or more"
+      if (courseData.course_duration_minutes < 0) errors.course_duration_minutes = "Duration (minutes) must be 0 or more"
+    } else if (step === 2) {
+      if (!courseData.course_description.trim()) errors.course_description = "Detailed description is required"
+      else if (courseData.course_description.trim().length < 100) errors.course_description = "Description must be at least 100 characters"
+      if (!courseData.course_objective.trim()) errors.course_objective = "Course objectives are required"
+      if (!courseData.pre_requirments.trim()) errors.pre_requirments = "Prerequisites are required"
+      if (!courseData.course_level.trim()) errors.course_level = "Course level is required"
+      if (!courseData.enrollment_type.trim()) errors.enrollment_type = "Enrollment type is required"
+    } else if (step === 3) {
+      if (!selectedFile) errors.selectedFile = "Course content file is required"
+    }
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
   const handleGenerateKeys = async () => {
     try {
       setIsLoading(true)
       const response = await api.post('/generate-keys', { num_users: numUsers })
-      
+
       const keys = response.data.split('\n').filter((key: string) => key.trim() !== '')
       setGeneratedKeys(keys)
     } catch (error) {
@@ -66,9 +102,11 @@ export default function AdminPage() {
   }
 
   const handleCourseCreation = async () => {
+    // Validate current step before proceeding
+    if (!validateStep(currentStep)) return
     try {
       setIsLoading(true)
-      
+
       // Step 1: Create course master
       if (currentStep === 1) {
         const response = await api.post('/courseMaster', {
@@ -81,11 +119,11 @@ export default function AdminPage() {
           rating: courseData.rating,
           course_profile_image: courseData.course_profile_image
         })
-        
+
         setCourseId(response.data.course_id)
         setCurrentStep(2)
       }
-      
+
       // Step 2: Create course enrollment
       else if (currentStep === 2) {
         const response = await api.post('/courseEnrollment', {
@@ -97,22 +135,22 @@ export default function AdminPage() {
           roles: courseData.roles,
           course_type: courseData.enrollment_type
         })
-        
+
         setEnrollmentId(response.data.enrollment_id)
         setCurrentStep(3)
       }
-      
+
       // Step 3: Upload course content
       else if (currentStep === 3 && selectedFile) {
         const formData = new FormData()
         formData.append('file', selectedFile)
-        
+
         await api.post('/courseContent/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         })
-        
+
         // Reset form and close dialog
         setCurrentStep(1)
         setCourseData({
@@ -134,18 +172,56 @@ export default function AdminPage() {
         setCourseId(null)
         setEnrollmentId(null)
         setSelectedFile(null)
+        setIsDialogOpen(false)
+        toast({ title: "Course Created", description: "The course was created successfully.", variant: "default" })
+        reloadCourses()
+        return
       }
     } catch (error) {
       console.error('Error in course creation:', error)
+      toast({ title: "Error", description: "Failed to create course.", variant: "destructive" })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Fetch courses on mount and after creation
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setCoursesLoading(true)
+        setCoursesError(null)
+        const response = await api.get("/course-master")
+        setCourses(response.data.courses || [])
+      } catch (error: any) {
+        setCoursesError("Failed to fetch courses")
+        setCourses([])
+      } finally {
+        setCoursesLoading(false)
+      }
+    }
+    fetchCourses()
+  }, [])
+
+  // Helper to reload courses
+  const reloadCourses = async () => {
+    try {
+      setCoursesLoading(true)
+      setCoursesError(null)
+      const response = await api.get("/course-master")
+      setCourses(response.data.courses || [])
+    } catch (error: any) {
+      setCoursesError("Failed to fetch courses")
+      setCourses([])
+    } finally {
+      setCoursesLoading(false)
     }
   }
 
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
-      
+
       <Tabs defaultValue="global-analysis" className="space-y-4">
         <TabsList>
           <TabsTrigger value="global-analysis">Global Analysis</TabsTrigger>
@@ -216,7 +292,7 @@ export default function AdminPage() {
                         onChange={(e) => setNumUsers(parseInt(e.target.value))}
                       />
                     </div>
-                    <Button 
+                    <Button
                       onClick={handleGenerateKeys}
                       disabled={isLoading || numUsers <= 0}
                       className="w-full"
@@ -275,162 +351,146 @@ export default function AdminPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Courses Management</CardTitle>
-              <Dialog>
+              <Dialog
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button>Create Course</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl px-4 py-2">
                   <DialogHeader>
                     <DialogTitle>Create New Course - Step {currentStep} of 3</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
+                  <div className="space-y-2 py-2">
                     {currentStep === 1 && (
-                      <>
-                        <div className="space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1 flex flex-col">
                           <Label htmlFor="course-name">Course Name</Label>
-                          <Input
-                            id="course-name"
-                            value={courseData.course_name}
-                            onChange={(e) => setCourseData({...courseData, course_name: e.target.value})}
-                          />
+                          <Input id="course-name" value={courseData.course_name} onChange={(e) => setCourseData({ ...courseData, course_name: e.target.value })} aria-invalid={!!formErrors.course_name} />
+                          <div className="min-h-[18px]">{formErrors.course_name && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_name}</p>}</div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1 flex flex-col">
                           <Label htmlFor="course-description">Short Description</Label>
-                          <Textarea
-                            id="course-description"
-                            value={courseData.course_short_description}
-                            onChange={(e) => setCourseData({...courseData, course_short_description: e.target.value})}
-                          />
+                          <Textarea id="course-description" value={courseData.course_short_description} onChange={(e) => setCourseData({ ...courseData, course_short_description: e.target.value })} aria-invalid={!!formErrors.course_short_description} className="min-h-[38px]" />
+                          <div className="min-h-[18px]">{formErrors.course_short_description && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_short_description}</p>}</div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="course-type">Course Type</Label>
-                            <Input
-                              id="course-type"
-                              value={courseData.course_type}
-                              onChange={(e) => setCourseData({...courseData, course_type: e.target.value})}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="language">Language</Label>
-                            <Input
-                              id="language"
-                              value={courseData.language}
-                              onChange={(e) => setCourseData({...courseData, language: e.target.value})}
-                            />
-                          </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="course-type">Course Type</Label>
+                          <Select value={courseData.course_type} onValueChange={(value) => setCourseData({ ...courseData, course_type: value })}>
+                            <SelectTrigger aria-invalid={!!formErrors.course_type} className="h-9 text-sm">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="free">Free</SelectItem>
+                              <SelectItem value="premium">Premium</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <div className="min-h-[18px]">{formErrors.course_type && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_type}</p>}</div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="duration-hours">Duration (Hours)</Label>
-                            <Input
-                              id="duration-hours"
-                              type="number"
-                              value={courseData.course_duration_hours}
-                              onChange={(e) => setCourseData({...courseData, course_duration_hours: parseInt(e.target.value)})}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="duration-minutes">Duration (Minutes)</Label>
-                            <Input
-                              id="duration-minutes"
-                              type="number"
-                              value={courseData.course_duration_minutes}
-                              onChange={(e) => setCourseData({...courseData, course_duration_minutes: parseInt(e.target.value)})}
-                            />
-                          </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="language">Language</Label>
+                          <Input id="language" value={courseData.language} onChange={(e) => setCourseData({ ...courseData, language: e.target.value })} aria-invalid={!!formErrors.language} />
+                          <div className="min-h-[18px]">{formErrors.language && <p className="text-red-500 text-xs mt-0.5">{formErrors.language}</p>}</div>
                         </div>
-                      </>
-                    )}
-
-                    {currentStep === 2 && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="detailed-description">Detailed Description</Label>
-                          <Textarea
-                            id="detailed-description"
-                            value={courseData.course_description}
-                            onChange={(e) => setCourseData({...courseData, course_description: e.target.value})}
-                          />
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="duration-hours">Duration (Hours)</Label>
+                          <Input id="duration-hours" type="number" value={String(courseData.course_duration_hours)} onChange={(e) => setCourseData({ ...courseData, course_duration_hours: parseInt(e.target.value) })} aria-invalid={!!formErrors.course_duration_hours} />
+                          <div className="min-h-[18px]">{formErrors.course_duration_hours && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_duration_hours}</p>}</div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="objectives">Course Objectives</Label>
-                          <Textarea
-                            id="objectives"
-                            value={courseData.course_objective}
-                            onChange={(e) => setCourseData({...courseData, course_objective: e.target.value})}
-                          />
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="duration-minutes">Duration (Minutes)</Label>
+                          <Input id="duration-minutes" type="number" value={String(courseData.course_duration_minutes)} onChange={(e) => setCourseData({ ...courseData, course_duration_minutes: parseInt(e.target.value) })} aria-invalid={!!formErrors.course_duration_minutes} />
+                          <div className="min-h-[18px]">{formErrors.course_duration_minutes && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_duration_minutes}</p>}</div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="prerequisites">Prerequisites</Label>
-                          <Textarea
-                            id="prerequisites"
-                            value={courseData.pre_requirments}
-                            onChange={(e) => setCourseData({...courseData, pre_requirments: e.target.value})}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="course-level">Course Level</Label>
-                            <Select
-                              value={courseData.course_level}
-                              onValueChange={(value) => setCourseData({...courseData, course_level: value})}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select level" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Beginner">Beginner</SelectItem>
-                                <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                <SelectItem value="Advanced">Advanced</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="enrollment-type">Enrollment Type</Label>
-                            <Select
-                              value={courseData.enrollment_type}
-                              onValueChange={(value) => setCourseData({...courseData, enrollment_type: value})}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="free">Free</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </>
-                    )}
-
-                    {currentStep === 3 && (
-                      <div className="space-y-2">
-                        <Label htmlFor="course-content">Course Content (Excel File)</Label>
-                        <Input
-                          id="course-content"
-                          type="file"
-                          accept=".xlsx,.xls"
-                          onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                        />
                       </div>
                     )}
 
-                    <div className="flex justify-between pt-4">
+                    {currentStep === 2 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="detailed-description">Detailed Description</Label>
+                          <Textarea id="detailed-description" value={courseData.course_description} onChange={(e) => setCourseData({ ...courseData, course_description: e.target.value })} aria-invalid={!!formErrors.course_description} className="min-h-[38px]" />
+                          <div className="text-xs text-gray-600">Description must be at least 100 characters.</div>
+                          <div className="min-h-[18px]">{formErrors.course_description && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_description}</p>}</div>
+                        </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="objectives">Course Objectives</Label>
+                          <Textarea id="objectives" value={courseData.course_objective} onChange={(e) => setCourseData({ ...courseData, course_objective: e.target.value })} aria-invalid={!!formErrors.course_objective} className="min-h-[38px]" />
+                          <div className="min-h-[18px]">{formErrors.course_objective && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_objective}</p>}</div>
+                        </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="prerequisites">Prerequisites</Label>
+                          <Textarea id="prerequisites" value={courseData.pre_requirments} onChange={(e) => setCourseData({ ...courseData, pre_requirments: e.target.value })} aria-invalid={!!formErrors.pre_requirments} className="min-h-[38px]" />
+                          <div className="min-h-[18px]">{formErrors.pre_requirments && <p className="text-red-500 text-xs mt-0.5">{formErrors.pre_requirments}</p>}</div>
+                        </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="course-level">Course Level</Label>
+                          <Select value={courseData.course_level} onValueChange={(value) => setCourseData({ ...courseData, course_level: value })}>
+                            <SelectTrigger aria-invalid={!!formErrors.course_level} className="h-9 text-sm">
+                              <SelectValue placeholder="Select level" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Beginner">Beginner</SelectItem>
+                              <SelectItem value="Intermediate">Intermediate</SelectItem>
+                              <SelectItem value="Advanced">Advanced</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <div className="min-h-[18px]">{formErrors.course_level && <p className="text-red-500 text-xs mt-0.5">{formErrors.course_level}</p>}</div>
+                        </div>
+                        <div className="space-y-1 flex flex-col">
+                          <Label htmlFor="enrollment-type">Enrollment Type</Label>
+                          <Select value={courseData.enrollment_type} onValueChange={(value) => setCourseData({ ...courseData, enrollment_type: value })}>
+                            <SelectTrigger aria-invalid={!!formErrors.enrollment_type} className="h-9 text-sm">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="free">Free</SelectItem>
+                              <SelectItem value="premium">Premium</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <div className="min-h-[18px]">{formErrors.enrollment_type && <p className="text-red-500 text-xs mt-0.5">{formErrors.enrollment_type}</p>}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {currentStep === 3 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-1 flex flex-col md:col-span-2">
+                          <Label htmlFor="course-content">Course Content (Excel File)</Label>
+                          <Input id="course-content" type="file" accept=".xlsx,.xls" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} aria-invalid={!!formErrors.selectedFile} />
+                          <div className="min-h-[18px]">{formErrors.selectedFile && <p className="text-red-500 text-xs mt-0.5">{formErrors.selectedFile}</p>}</div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            <strong>Note:</strong> Your Excel file must include the columns: <code>course_id</code>, <code>course_mastertitle_breakdown_id</code>, <code>course_subtitle_id</code> in the first row.<br />
+                            <button
+                              type="button"
+                              className="mt-1 underline text-blue-600 hover:text-blue-800"
+                              onClick={() => {
+                                const header = ["course_id", "course_mastertitle_breakdown_id", "course_subtitle_id"];
+                                const csvContent = header.join(",") + "\n";
+                                const blob = new Blob([csvContent], { type: "text/csv" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                a.href = url;
+                                a.download = "course_content_template.csv";
+                                a.click();
+                                URL.revokeObjectURL(url);
+                              }}
+                            >
+                              Download Template
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between pt-2">
                       {currentStep > 1 && (
-                        <Button
-                          variant="outline"
-                          onClick={() => setCurrentStep(currentStep - 1)}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => setCurrentStep(currentStep - 1)}>
                           Previous
                         </Button>
                       )}
-                      <Button
-                        onClick={handleCourseCreation}
-                        disabled={isLoading}
-                        className={currentStep === 1 ? "ml-auto" : ""}
-                      >
+                      <Button onClick={handleCourseCreation} disabled={isLoading} size="sm" className={currentStep === 1 ? "ml-auto" : ""}>
                         {isLoading ? "Processing..." : currentStep === 3 ? "Create Course" : "Next"}
                       </Button>
                     </div>
@@ -445,7 +505,7 @@ export default function AdminPage() {
                     <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">24</div>
+                    <div className="text-2xl font-bold">{coursesLoading ? "..." : courses.length}</div>
                     <p className="text-xs text-muted-foreground">Active courses in the system</p>
                   </CardContent>
                 </Card>
@@ -454,7 +514,7 @@ export default function AdminPage() {
                     <CardTitle className="text-sm font-medium">Free Courses</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">12</div>
+                    <div className="text-2xl font-bold">{coursesLoading ? "..." : courses.filter(c => c.course_type.toLowerCase() === "free").length}</div>
                     <p className="text-xs text-muted-foreground">Available free courses</p>
                   </CardContent>
                 </Card>
@@ -463,7 +523,7 @@ export default function AdminPage() {
                     <CardTitle className="text-sm font-medium">Premium Courses</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">12</div>
+                    <div className="text-2xl font-bold">{coursesLoading ? "..." : courses.filter(c => c.course_type.toLowerCase() === "premium").length}</div>
                     <p className="text-xs text-muted-foreground">Available premium courses</p>
                   </CardContent>
                 </Card>
@@ -471,35 +531,35 @@ export default function AdminPage() {
 
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Course List</h3>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {/* Sample course cards - replace with actual data */}
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">Python Programming</h4>
-                        <Badge variant="secondary">Free</Badge>
-                      </div>
-                      <p className="text-sm text-gray-500 mb-2">Learn Python basics to advanced</p>
-                      <div className="flex justify-between text-sm text-gray-500">
-                        <span>10h 30m</span>
-                        <span>⭐ 4.5</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold">Web Development</h4>
-                        <Badge>Premium</Badge>
-                      </div>
-                      <p className="text-sm text-gray-500 mb-2">Master modern web development</p>
-                      <div className="flex justify-between text-sm text-gray-500">
-                        <span>15h 45m</span>
-                        <span>⭐ 4.8</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                {coursesLoading ? (
+                  <div>Loading courses...</div>
+                ) : coursesError ? (
+                  <div className="text-red-500">{coursesError}</div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {courses.length === 0 ? (
+                      <div className="col-span-full text-center text-gray-500">No courses found.</div>
+                    ) : (
+                      courses.map((course) => (
+                        <Card key={course.course_id}>
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-semibold line-clamp-1">{course.course_name}</h4>
+                              <Badge variant={course.course_type.toLowerCase() === "free" ? "secondary" : undefined}>
+                                {course.course_type.charAt(0).toUpperCase() + course.course_type.slice(1)}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2 line-clamp-3">{course.course_short_description}</p>
+                            <div className="flex justify-between text-sm text-gray-500">
+                              <span>{course.course_duration_hours}h {course.course_duration_minutes}m</span>
+                              <span>⭐ {course.rating}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
