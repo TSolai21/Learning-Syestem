@@ -21,6 +21,11 @@ interface Course {
   lessons_count: number
   rating: number
   course_status: string
+  validity?: number;
+  updated_date?: string;
+  remaining_days?: number;
+  remaining_hours?: number;
+  remaining_minutes?: number;
 }
 
 export default function CoursesPage() {
@@ -31,16 +36,29 @@ export default function CoursesPage() {
   const [typeFilter, setTypeFilter] = useState("All Types")
   const [searchTerm, setSearchTerm] = useState("")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [coursesError, setCoursesError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
         setLoading(true)
-        const response = await api.get("/course-master")
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        const userId = user?.user_id;
+
+        if (!userId) {
+          console.error("User ID not found in localStorage.");
+          setCoursesError("User not logged in.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await api.get(`/user-courses?user_id=${userId}`)
         setCourses(response.data.courses || [])
         setFilteredCourses(response.data.courses || [])
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching courses:", error)
+        setCoursesError("Failed to fetch courses.")
+        setCourses([])
       } finally {
         setLoading(false)
       }

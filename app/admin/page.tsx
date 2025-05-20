@@ -29,6 +29,9 @@ export default function AdminPage() {
   const [numUsers, setNumUsers] = useState<number>(0)
   const [generatedKeys, setGeneratedKeys] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [batchName, setBatchName] = useState("")
+  const [selectedCourses, setSelectedCourses] = useState<number[]>([])
+  const [validityDays, setValidityDays] = useState<number>(30)
 
   // Course creation states
   const [currentStep, setCurrentStep] = useState(1)
@@ -90,12 +93,22 @@ export default function AdminPage() {
   const handleGenerateKeys = async () => {
     try {
       setIsLoading(true)
-      const response = await api.post('/generate-keys', { num_users: numUsers })
+      const response = await api.post('/generate-keys', { 
+        num_users: numUsers,
+        batch_name: batchName,
+        course_ids: selectedCourses,
+        validity_days: validityDays
+      })
 
       const keys = response.data.split('\n').filter((key: string) => key.trim() !== '')
       setGeneratedKeys(keys)
     } catch (error) {
       console.error('Error generating keys:', error)
+      toast({ 
+        title: "Error", 
+        description: "Failed to generate keys. Please try again.", 
+        variant: "destructive" 
+      })
     } finally {
       setIsLoading(false)
     }
@@ -271,78 +284,101 @@ export default function AdminPage() {
 
         <TabsContent value="users">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Users Management</CardTitle>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>Create Users</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Generate User Keys</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="num-users">Number of Users</Label>
-                      <Input
-                        id="num-users"
-                        type="number"
-                        min="1"
-                        value={numUsers}
-                        onChange={(e) => setNumUsers(parseInt(e.target.value))}
-                      />
-                    </div>
-                    <Button
-                      onClick={handleGenerateKeys}
-                      disabled={isLoading || numUsers <= 0}
-                      className="w-full"
-                    >
-                      {isLoading ? "Generating..." : "Generate Keys"}
-                    </Button>
-                    {generatedKeys.length > 0 && (
-                      <div className="mt-4">
-                        <h4 className="font-medium mb-2">Generated Keys:</h4>
-                        <div className="bg-gray-100 p-4 rounded-md max-h-40 overflow-y-auto">
-                          {generatedKeys.map((key, index) => (
-                            <div key={index} className="text-sm font-mono mb-1">{key}</div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">1,234</div>
-                    <p className="text-xs text-muted-foreground">Active users in the system</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">New Users (30d)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">+123</div>
-                    <p className="text-xs text-muted-foreground">+12% from last month</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">789</div>
-                    <p className="text-xs text-muted-foreground">Users active in last 7 days</p>
-                  </CardContent>
-                </Card>
-              </div>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>Create New Users</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New Users</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="batchName" className="text-right">
+                        Batch Name
+                      </Label>
+                      <Input
+                        id="batchName"
+                        value={batchName}
+                        onChange={(e) => setBatchName(e.target.value)}
+                        className="col-span-3"
+                        placeholder="Enter batch name"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="numUsers" className="text-right">
+                        Number of Users
+                      </Label>
+                      <Input
+                        id="numUsers"
+                        type="number"
+                        value={numUsers}
+                        onChange={(e) => setNumUsers(parseInt(e.target.value))}
+                        className="col-span-3"
+                        min="1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="validityDays" className="text-right">
+                        Validity (Days)
+                      </Label>
+                      <Input
+                        id="validityDays"
+                        type="number"
+                        value={validityDays}
+                        onChange={(e) => setValidityDays(parseInt(e.target.value))}
+                        className="col-span-3"
+                        min="1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">
+                        Select Courses
+                      </Label>
+                      <div className="col-span-3 space-y-2 max-h-60 overflow-y-auto pr-2">
+                        {courses.map((course) => (
+                          <div key={course.course_id} className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              id={`course-${course.course_id}`}
+                              checked={selectedCourses.includes(course.course_id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedCourses([...selectedCourses, course.course_id])
+                                } else {
+                                  setSelectedCourses(selectedCourses.filter(id => id !== course.course_id))
+                                }
+                              }}
+                            />
+                            <label htmlFor={`course-${course.course_id}`}>
+                              {course.course_name}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <Button onClick={handleGenerateKeys} disabled={isLoading}>
+                      {isLoading ? "Generating..." : "Generate Keys"}
+                    </Button>
+                  </div>
+                  {generatedKeys.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold mb-2">Generated Keys:</h3>
+                      <div className="max-h-40 overflow-y-auto border rounded p-2">
+                        {generatedKeys.map((key, index) => (
+                          <div key={index} className="text-sm font-mono">{key}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>

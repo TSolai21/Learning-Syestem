@@ -1,7 +1,11 @@
 import Link from "next/link"
-import { Clock, Users, BookOpen } from "lucide-react"
+import { Clock, Users, BookOpen, Hourglass } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { useEffect, useState } from "react"
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+dayjs.extend(duration)
 
 interface CourseProps {
   course: {
@@ -16,10 +20,49 @@ interface CourseProps {
     enrolled_students: number
     lessons_count: number
     rating: number
+    validity?: number
+    updated_date?: string
+    remaining_days?: number
+    remaining_hours?: number
+    remaining_minutes?: number
   }
 }
 
 export function CourseCard({ course }: CourseProps) {
+  const [timeLeft, setTimeLeft] = useState<string | null>(null)
+  const [isExpired, setIsExpired] = useState(false)
+
+  useEffect(() => {
+    if (course.updated_date && course.validity !== undefined) {
+      const updateTimeLeft = () => {
+        const updatedDate = dayjs(course.updated_date)
+        const expiryDate = updatedDate.add(course.validity as number, 'days')
+        const now = dayjs()
+        const remaining = expiryDate.diff(now)
+
+        if (remaining <= 0) {
+          setTimeLeft("Expired")
+          setIsExpired(true)
+        } else {
+          setIsExpired(false)
+          const dur = dayjs.duration(remaining)
+          const days = Math.max(0, dur.days())
+          const hours = Math.max(0, dur.hours() % 24)
+          const minutes = Math.max(0, dur.minutes() % 60)
+          const seconds = Math.max(0, dur.seconds() % 60)
+
+          setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`)
+        }
+      }
+
+      // Update immediately and then every second
+      updateTimeLeft()
+      const timerId = setInterval(updateTimeLeft, 1000)
+
+      return () => clearInterval(timerId)
+    }
+  }, [course.updated_date, course.validity])
+
   // Format duration
   const formatDuration = (hours: number, minutes: number) => {
     if (hours === 0) {
@@ -39,66 +82,147 @@ export function CourseCard({ course }: CourseProps) {
   }
 
   return (
-    <Link href={`/dashboard/courses/${course.course_id}`}>
-      <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer">
-        {/* Course Image */}
-        <div className="relative h-48 overflow-hidden">
-          <img
-            src={course.course_profile_image || "/placeholder.svg"}
-            alt={course.course_name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <Badge
-            className={`absolute bottom-3 right-3 ${course.course_type === "free" ? "bg-green-500" : "bg-blue-500"}`}
-          >
-            {course.course_type === "free" ? "Free" : "Premium"}
-          </Badge>
+    <>
+      {isExpired ? (
+        <div className="cursor-not-allowed">
+          <Card className="overflow-hidden h-full transition-all duration-300 opacity-50">
+            {/* Course Image */}
+            <div className="relative h-48 overflow-hidden">
+              <img
+                src={course.course_profile_image || "/placeholder.svg"}
+                alt={course.course_name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <Badge
+                className={`absolute bottom-3 right-3 ${course.course_type === "free" ? "bg-green-500" : "bg-blue-500"}`}
+              >
+                {course.course_type === "free" ? "Free" : "Premium"}
+              </Badge>
+            </div>
+
+            <CardContent className={`p-5 ${isExpired ? 'opacity-50' : ''}`}>
+              <h3
+                title={course.course_name}
+                className="text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors"
+              >
+                {course.course_name}
+              </h3>
+
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{course.course_short_description}</p>
+
+              <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <Clock size={16} className="text-gray-400" />
+                  <span>{formatDuration(course.course_duration_hours, course.course_duration_minutes)}</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Users size={16} className="text-gray-400" />
+                  <span>{course.enrolled_students || "0"} students</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <BookOpen size={16} className="text-gray-400" />
+                  <span>{course.lessons_count || "0"} lessons</span>
+                </div>
+
+                {/* Display Validity */}
+                {timeLeft !== null && (
+                  <div className={`flex items-center gap-1.5 ${isExpired ? 'text-red-600' : 'text-green-600'}`}>
+                    <Hourglass size={16} />
+                    <span>{timeLeft}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Bar */}
+              {/* <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-medium">Progress</span>
+                  <span className="">{course.course_progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(course.course_progress)}`}
+                    style={{ width: `${course.course_progress}%` }}
+                  ></div>
+                </div>
+              </div> */}
+            </CardContent>
+          </Card>
         </div>
-
-        <CardContent className="p-5">
-          <h3
-            title={course.course_name}
-            className="text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors"
-          >
-            {course.course_name}
-          </h3>
-
-          <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{course.course_short_description}</p>
-
-          <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-500">
-            <div className="flex items-center gap-1.5">
-              <Clock size={16} className="text-gray-400" />
-              <span>{formatDuration(course.course_duration_hours, course.course_duration_minutes)}</span>
+      ) : (
+        <Link href={`/dashboard/courses/${course.course_id}`}>
+          <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 cursor-pointer">
+            {/* Course Image */}
+            <div className="relative h-48 overflow-hidden">
+              <img
+                src={course.course_profile_image || "/placeholder.svg"}
+                alt={course.course_name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <Badge
+                className={`absolute bottom-3 right-3 ${course.course_type === "free" ? "bg-green-500" : "bg-blue-500"}`}
+              >
+                {course.course_type === "free" ? "Free" : "Premium"}
+              </Badge>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              <Users size={16} className="text-gray-400" />
-              <span>{course.enrolled_students || "0"} students</span>
-            </div>
+            <CardContent className={`p-5 ${isExpired ? 'opacity-50' : ''}`}>
+              <h3
+                title={course.course_name}
+                className="text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors"
+              >
+                {course.course_name}
+              </h3>
 
-            <div className="flex items-center gap-1.5">
-              <BookOpen size={16} className="text-gray-400" />
-              <span>{course.lessons_count || "0"} lessons</span>
-            </div>
-          </div>
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-10">{course.course_short_description}</p>
 
-          {/* Progress Bar */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs">
-              <span className="font-medium">Progress</span>
-              <span className="text-gray-600 font-medium">{course.course_progress}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(course.course_progress)}`}
-                style={{ width: `${course.course_progress}%` }}
-              ></div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+              <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <Clock size={16} className="text-gray-400" />
+                  <span>{formatDuration(course.course_duration_hours, course.course_duration_minutes)}</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Users size={16} className="text-gray-400" />
+                  <span>{course.enrolled_students || "0"} students</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <BookOpen size={16} className="text-gray-400" />
+                  <span>{course.lessons_count || "0"} lessons</span>
+                </div>
+
+                {/* Display Validity */}
+                {timeLeft !== null && (
+                  <div className={`flex items-center gap-1.5 ${isExpired ? 'text-red-600' : 'text-green-600'}`}>
+                    <Hourglass size={16} />
+                    <span>{timeLeft}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress Bar */}
+              {/* <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-medium">Progress</span>
+                  <span className="">{course.course_progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(course.course_progress)}`}
+                    style={{ width: `${course.course_progress}%` }}
+                  ></div>
+                </div>
+              </div> */}
+            </CardContent>
+          </Card>
+        </Link>
+      )}
+    </>
   )
 }
 
