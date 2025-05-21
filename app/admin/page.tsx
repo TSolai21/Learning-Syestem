@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { BatchCourseValidityDisplay } from "@/components/batch-course-validity-display"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 interface Course {
   course_id: number
@@ -33,6 +35,7 @@ export default function AdminPage() {
   const [batchName, setBatchName] = useState("")
   const [selectedCourses, setSelectedCourses] = useState<number[]>([])
   const [validityDays, setValidityDays] = useState<number>(30)
+  const [numUsersInput, setNumUsersInput] = useState<string>("1")
 
   // Course creation states
   const [currentStep, setCurrentStep] = useState(1)
@@ -113,10 +116,29 @@ export default function AdminPage() {
   }
 
   const handleGenerateKeys = async () => {
+    // Convert numUsersInput to number for the API call
+    const numUsersNum = parseInt(numUsersInput, 10);
+    if (isNaN(numUsersNum) || numUsersNum <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid number of users.",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (selectedCourses.length === 0) {
+       toast({
+        title: "Error",
+        description: "Please select at least one course.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsLoading(true)
-      const response = await api.post('/generate-keys', { 
-        num_users: numUsers,
+      const response = await api.post('/generate-keys', {
+        num_users: numUsersNum, // Use the parsed number
         batch_name: batchName,
         course_ids: selectedCourses,
         validity_days: validityDays
@@ -298,6 +320,19 @@ export default function AdminPage() {
     }
   }
 
+  // Function to handle downloading keys as CSV
+  const handleDownloadKeys = () => {
+    if (generatedKeys.length === 0) return;
+
+    const csvContent = "Key ID\n" + generatedKeys.join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "generated_keys.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
@@ -413,7 +448,7 @@ export default function AdminPage() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl">
                   <DialogHeader>
-                    <DialogTitle>Create New Users</DialogTitle>
+                    <DialogTitle>Create New Users Batch</DialogTitle>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -425,7 +460,6 @@ export default function AdminPage() {
                         value={batchName}
                         onChange={(e) => setBatchName(e.target.value)}
                         className="col-span-3"
-                        placeholder="Enter batch name"
                       />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
@@ -435,17 +469,17 @@ export default function AdminPage() {
                       <Input
                         id="numUsers"
                         type="number"
-                        value={numUsers}
-                        onChange={(e) => setNumUsers(parseInt(e.target.value))}
+                        value={numUsersInput}
+                        onChange={(e) => setNumUsersInput(e.target.value)}
                         className="col-span-3"
                         min="1"
                       />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="validityDays" className="text-right">
                         Validity (Days)
                       </Label>
-                      <Input
+                       <Input
                         id="validityDays"
                         type="number"
                         value={validityDays}
@@ -454,50 +488,61 @@ export default function AdminPage() {
                         min="1"
                       />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label className="text-right">
+                    <div className="grid grid-cols-4 items-start gap-4">
+                      <Label htmlFor="selectCourses" className="text-right pt-2">
                         Select Courses
                       </Label>
-                      <div className="col-span-3 space-y-2 max-h-60 overflow-y-auto pr-2">
-                        {courses.map((course) => (
-                          <div key={course.course_id} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
+                       <div className="col-span-3 max-h-40 overflow-y-auto space-y-2">
+                         {courses.map(course => (
+                           <div key={course.course_id} className="flex items-center space-x-2">
+                            <Checkbox
                               id={`course-${course.course_id}`}
                               checked={selectedCourses.includes(course.course_id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedCourses([...selectedCourses, course.course_id])
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedCourses([...selectedCourses, course.course_id]);
                                 } else {
-                                  setSelectedCourses(selectedCourses.filter(id => id !== course.course_id))
+                                  setSelectedCourses(selectedCourses.filter(id => id !== course.course_id));
                                 }
                               }}
                             />
-                            <label htmlFor={`course-${course.course_id}`}>
+                             <label
+                              htmlFor={`course-${course.course_id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
                               {course.course_name}
                             </label>
-                          </div>
-                        ))}
-                      </div>
+                           </div>
+                         ))}
+                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-end">
-                    <Button onClick={handleGenerateKeys} disabled={isLoading}>
+                  <DialogFooter>
+                    <Button onClick={handleGenerateKeys} disabled={isLoading || !batchName.trim() || parseInt(numUsersInput, 10) <= 0 || selectedCourses.length === 0}>
                       {isLoading ? "Generating..." : "Generate Keys"}
                     </Button>
-                  </div>
-                  {generatedKeys.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="font-semibold mb-2">Generated Keys:</h3>
-                      <div className="max-h-40 overflow-y-auto border rounded p-2">
-                        {generatedKeys.map((key, index) => (
-                          <div key={index} className="text-sm font-mono">{key}</div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  </DialogFooter>
                 </DialogContent>
               </Dialog>
+
+              {/* Generated Keys Section */}
+              {generatedKeys.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold mb-4">Generated Keys:</h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto border rounded-md p-4">
+                    {generatedKeys.map((key, index) => (
+                      <div key={index} className="font-mono text-sm bg-gray-100 p-2 rounded break-all">
+                        {key}
+                      </div>
+                    ))}
+                  </div>
+                   <div className="mt-4 text-right">
+                     <Button onClick={handleDownloadKeys} disabled={generatedKeys.length === 0}>
+                       Download Keys (CSV)
+                     </Button>
+                   </div>
+                </div>
+              )}
 
               {/* Batch Analytics Tree View */}
               <div className="mt-8">
@@ -539,41 +584,49 @@ export default function AdminPage() {
                   batchesData.length === 0 ? (
                     <div className="text-gray-500">No batch data available.</div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-gray-700">
                       {batchesData.map((batch) => (
-                        <div key={batch.batch_id} className="border rounded-md p-4">
-                          <button onClick={() => toggleNode(`batch-${batch.batch_id}`)} className="flex items-center justify-between w-full text-left font-semibold">
-                            <span>Batch: {batch.batch_name} ({batch.users.length} Users, {batch.users[0]?.courses?.length || 0} Courses per user)</span>
-                             <span>{expandedNodes.has(`batch-${batch.batch_id}`) ? 'Collapse' : 'Expand'}</span>
+                        <div key={batch.batch_id} className="border rounded-md p-4 bg-gray-50">
+                          <button onClick={() => toggleNode(`batch-${batch.batch_id}`)} className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800">
+                             <span>
+                               {expandedNodes.has(`batch-${batch.batch_id}`) ? (
+                                 <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                               ) : (
+                                 <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                               )}
+                                Batch: {batch.batch_name} ({batch.users.length} Users, {batch.users[0]?.courses?.length || 0} Courses per user)
+                             </span>
                           </button>
-                          {expandedNodes.has(`batch-${batch.batch_id}`) && (
-                            <div className="ml-4 mt-4 space-y-4">
+                          {expandedNodes.has(`batch-${batch.batch_id}`) && ( // Batch content
+                            <div className="ml-6 mt-4 space-y-4 border-l pl-4">
                               {batch.users.map((user: any) => (
-                                 <div key={user.username} className="border-t pt-4">
-                                    <button onClick={() => toggleNode(`user-${batch.batch_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium">
-                                      <span>User: {user.username} ({user.courses.length} Courses)</span>
-                                       <span>{expandedNodes.has(`user-${batch.batch_id}-${user.username}`) ? 'Collapse' : 'Expand'}</span>
+                                 <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
+                                    <button onClick={() => toggleNode(`user-${batch.batch_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
+                                      <span>
+                                        {expandedNodes.has(`user-${batch.batch_id}-${user.username}`) ? (
+                                          <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        ) : (
+                                          <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        )}
+                                         User: {user.username} ({user.courses.length} Courses)
+                                      </span>
                                     </button>
-                                    {expandedNodes.has(`user-${batch.batch_id}-${user.username}`) && (
-                                      <div className="ml-4 mt-4 space-y-2">
+                                    {expandedNodes.has(`user-${batch.batch_id}-${user.username}`) && ( // User content
+                                      <div className="ml-6 mt-3 space-y-2 border-l pl-4 text-gray-600">
                                         {user.courses.map((course: any) => (
-                                           <div key={course.course_name} className="border-t pt-2 text-sm">
+                                           <div key={course.course_name} className="border-b last:border-b-0 pb-3 text-sm space-y-1">
                                               <div className="font-medium">Course: {course.course_name}</div>
-                                              <div>Enrollment Status: {course.enrollment_status}</div>
-                                              <div>Completion Status: {course.completion_status}</div>
+                                              <div>Enrollment Status: <span className="font-normal">{course.enrollment_status}</span></div>
+                                              <div>Completion Status: <span className="font-normal">{course.completion_status}</span></div>
                                               {/* Real-time validity countdown */}
                                               {course.validity !== undefined && course.updated_date && (
                                                  <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
                                               )}
                                            </div>
-                                        ))}
-                                      </div>
-                                    )}
-                                 </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                                        ))}                                      </div>
+                                    )}                                 </div>
+                              ))}                            </div>
+                          )}                        </div>
                       ))}
                     </div>
                   )

@@ -1,651 +1,1127 @@
 {
-    "data": {
-      "batches": [
+    "data": [
         {
-          "batch_id": 1,
-          "batch_name": "testing",
-          "users": [
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Maddy"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Solai "
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                }
-              ],
-              "initial_assessment": null,
-              "username": "sundaresan"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "SUDHARSAN D S"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": 2,
-                  "completion_status": "Completed",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Solaikumar"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Mareeswari"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 0
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 1
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "user1"
+            "get_course_data": {
+                "assessment_options": [
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "To create machine code directly",
+                        "question_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "To write low-level assembly language",
+                        "question_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Python is a versatile, high-level programming language used for web development, data analysis, AI, and more.",
+                        "question_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "To perform operating system tasks only",
+                        "question_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "A fixed memory space in RAM",
+                        "question_id": 2
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "A reserved memory location to store values",
+                        "question_id": 2
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "An immutable storage area",
+                        "question_id": 2
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "A built-in Python data type",
+                        "question_id": 2
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "import",
+                        "question_id": 3
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "True",
+                        "question_id": 3
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "loop",
+                        "question_id": 3
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "string",
+                        "question_id": 3
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "Primitive types store simple values; non-primitive types are collections like lists, dictionaries.",
+                        "question_id": 4
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "Primitive types are immutable; non-primitive types are always mutable.",
+                        "question_id": 4
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Primitive types cannot be used in loops.",
+                        "question_id": 4
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Primitive types are only integers.",
+                        "question_id": 4
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "For loop",
+                        "question_id": 5
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "While loop",
+                        "question_id": 5
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Do-while loop",
+                        "question_id": 5
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "None of the above",
+                        "question_id": 5
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "class MyClass:",
+                        "question_id": 6
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "def MyClass:",
+                        "question_id": 6
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "object MyClass:",
+                        "question_id": 6
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "None of the above",
+                        "question_id": 6
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "A function is reusable; lambda is for anonymous short operations.",
+                        "question_id": 7
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "A lambda function is only for loops.",
+                        "question_id": 7
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Both are identical.",
+                        "question_id": 7
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Functions cannot have return values.",
+                        "question_id": 7
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "read()",
+                        "question_id": 8
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "readlines()",
+                        "question_id": 8
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "readline()",
+                        "question_id": 8
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "None of the above",
+                        "question_id": 8
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "The program terminates with an error traceback.",
+                        "question_id": 9
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "The program skips the error.",
+                        "question_id": 9
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "The program converts the error to 0.",
+                        "question_id": 9
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "The program continues normally.",
+                        "question_id": 9
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "To catch and handle exceptions during runtime.",
+                        "question_id": 10
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "To skip errors in the code.",
+                        "question_id": 10
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "To test functions.",
+                        "question_id": 10
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "To stop the program on error.",
+                        "question_id": 10
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "List",
+                        "question_id": 11
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "Tuple",
+                        "question_id": 11
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "String",
+                        "question_id": 11
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Integer",
+                        "question_id": 11
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "Using //",
+                        "question_id": 12
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "Using the # symbol",
+                        "question_id": 12
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Using \" \" (double quotes)",
+                        "question_id": 12
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Using /* */",
+                        "question_id": 12
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "1.5",
+                        "question_id": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "2",
+                        "question_id": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "1 (integer division result)",
+                        "question_id": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Error",
+                        "question_id": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "Using the \"inherit\" keyword",
+                        "question_id": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "Using the \"class\" keyword with the parent class in parentheses",
+                        "question_id": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Using the \"super\" keyword",
+                        "question_id": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Using \"inherits from\"",
+                        "question_id": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "4",
+                        "question_id": 15
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "5",
+                        "question_id": 15
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "6",
+                        "question_id": 15
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "None of the above",
+                        "question_id": 15
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "The \"is\" keyword checks for object equality.",
+                        "question_id": 16
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "The \"is\" keyword compares two variables for memory reference equality.",
+                        "question_id": 16
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "The \"is\" keyword is used in functions only.",
+                        "question_id": 16
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "The \"is\" keyword checks type.",
+                        "question_id": 16
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "\"open(filename, w)\"",
+                        "question_id": 17
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "\"write(filename)\"",
+                        "question_id": 17
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "\"writefile(filename)\"",
+                        "question_id": 17
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "\"write_mode(filename)\"",
+                        "question_id": 17
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "Use a \"finally\" block.",
+                        "question_id": 18
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "Handle them in separate except blocks.",
+                        "question_id": 18
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "Use a tuple in a single except block.",
+                        "question_id": 18
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "Both options 2 and 3 are correct.",
+                        "question_id": 18
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "print()",
+                        "question_id": 19
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "input()",
+                        "question_id": 19
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "read()",
+                        "question_id": 19
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "fetch()",
+                        "question_id": 19
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 1,
+                        "option_text": "<class int>",
+                        "question_id": 20
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 2,
+                        "option_text": "<class float>",
+                        "question_id": 20
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 3,
+                        "option_text": "<class str>",
+                        "question_id": 20
+                    },
+                    {
+                        "course_id": 1,
+                        "option_sequence": 4,
+                        "option_text": "<class bool>",
+                        "question_id": 20
+                    }
+                ],
+                "course_assessment": [
+                    {
+                        "course_id": 1,
+                        "question": "What is the primary purpose of Python?",
+                        "question_id": 1,
+                        "question_sequenceid": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is a variable in Python?",
+                        "question_id": 2,
+                        "question_sequenceid": 2
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which of the following is a valid Python keyword?",
+                        "question_id": 3,
+                        "question_sequenceid": 3
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the difference between primitive and non-primitive data types in Python?",
+                        "question_id": 4,
+                        "question_sequenceid": 4
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which loop is best suited for iterating over a sequence in Python?",
+                        "question_id": 5,
+                        "question_sequenceid": 5
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "How do you define a class in Python?",
+                        "question_id": 6,
+                        "question_sequenceid": 6
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the difference between a function and a lambda function in Python?",
+                        "question_id": 7,
+                        "question_sequenceid": 7
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which function reads an entire file in Python?",
+                        "question_id": 8,
+                        "question_sequenceid": 8
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What happens when an exception is not handled in Python?",
+                        "question_id": 9,
+                        "question_sequenceid": 9
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the purpose of the \"try-except\" block in Python?",
+                        "question_id": 10,
+                        "question_sequenceid": 10
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which data type is mutable in Python?",
+                        "question_id": 11,
+                        "question_sequenceid": 11
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "How do you start a comment in Python?",
+                        "question_id": 12,
+                        "question_sequenceid": 12
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the output of 3//2 in Python?",
+                        "question_id": 13,
+                        "question_sequenceid": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which keyword is used to inherit a class in Python?",
+                        "question_id": 14,
+                        "question_sequenceid": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the result of len(\"Hello\")?",
+                        "question_id": 15,
+                        "question_sequenceid": 15
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What does the \"is\" keyword compare in Python?",
+                        "question_id": 16,
+                        "question_sequenceid": 16
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the syntax to open a file in write mode in Python?",
+                        "question_id": 17,
+                        "question_sequenceid": 17
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "How can you catch multiple exceptions in a single try-except block?",
+                        "question_id": 18,
+                        "question_sequenceid": 18
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which built-in function is used to get user input in Python?",
+                        "question_id": 19,
+                        "question_sequenceid": 19
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the result of type(3.14)?",
+                        "question_id": 20,
+                        "question_sequenceid": 20
+                    }
+                ],
+                "course_content": [
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Getting Start with Python",
+                        "course_mastertitle_breakdown_id": 2,
+                        "course_subtitle": "Python Syntax",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/introduction.html,https://www.python.org/dev/peps/pep-0008/,https://realpython.com/python-syntax/,https://www.w3schools.com/python/python_syntax.asp",
+                        "subtitle_code": "# Basic Python Syntax Examples\n\n# 1. Simple Print Statement\nprint('Hello, World!')\n\n# 2. Variables and Data Types\nage = 25  # Integer\nname = 'Python Learner'  # String\nis_student = True  # Boolean\n\n# 3. Basic Arithmetic\nx = 10\ny = 5\nsum_result = x + y\nprint('Sum of ' + str(x) + ' and ' + str(y) + ' is: ' + str(sum_result))\n\n# 4. User Input Example\nuser_name = input('Enter your name: ')\nprint('Welcome, ' + user_name + '!')\n\n# 5. Conditional Statement\nif age >= 18:\n    print('You are an adult')\nelse:\n    print('You are a minor')\n\n# 6. Simple Function\ndef greet(name):\n    \"\"\"\n    This function greets the person passed in as a parameter\n    Using multi-line comment for function documentation\n    \"\"\"\n    print('Hello, ' + name + '!')\n\ngreet('Python Enthusiast')\n",
+                        "subtitle_content": "Dive deep into the foundational syntax of Python, exploring the language's core structure, indentation rules, and basic programming constructs. This comprehensive module breaks down Python's syntax into digestible, easy-to-understand components, helping beginners build a solid programming foundation.\n\nKey Learning Objectives:\n- Understand Python's unique syntax and programming philosophy\n- Master the importance of indentation in Python\n- Learn about statements, comments, and code blocks\n- Explore basic input and output operations\n- Understand how to write clean, readable Python code\n\nDetailed Syntax Breakdown:\n1. Indentation and Code Blocks\n   - Python uses indentation to define code blocks\n   - Consistent indentation is crucial for code readability\n   - Typically, 4 spaces or a single tab is used for indentation\n   - Indentation replaces curly braces {} used in other programming languages\n\n2. Comments in Python\n   - Single-line comments use #\n   - Multi-line comments use triple quotes or double triple quotes\n   - Comments help explain code and improve code readability\n\n3. Basic Syntax Elements\n   - Variables: Dynamically typed, no need to declare type\n   - Naming conventions: lowercase, use underscores for readability\n   - Case-sensitive: age and Age are different variables\n\n4. Print Statements and Basic Output\n   - print() function used for displaying output\n   - Multiple ways to format output\n   - String concatenation and formatting techniques\n\n5. User Input\n   - input() function for receiving user input\n   - Type conversion for different input types\n   - Handling user interactions",
+                        "subtitle_help_text": "Python syntax is the foundation of writing clean, efficient, and readable code. This section provides a comprehensive introduction to Python's unique programming structure, focusing on key syntax rules, indentation, and basic programming constructs.\n\nPro Tips:\n- Always use consistent indentation\n- Write readable and self-explanatory code\n- Use meaningful variable names\n- Practice writing small scripts to build confidence"
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Getting Started with Python",
+                        "course_mastertitle_breakdown_id": 2,
+                        "course_subtitle": "Python Commands",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://realpython.com/python-basics/,https://docs.python.org/3/library/functions.html,https://www.w3schools.com/python/python_ref_functions.asp",
+                        "subtitle_code": "# Python Command Examples\n# 1. Help and Documentation\nhelp(str)  # Displays documentation for string methods\n\n# 2. Exploring Object Properties\nprint(dir(list))  # Lists all available methods and attributes for list\n\n# 3. Type Checking\nx = 42\nprint(type(x))  # Output: <class 'int'>\n\n# 4. Checking Object Membership\nprint(isinstance(x, int))  # Output: True\n\n# 5. Advanced Object Inspection\ndef explore_object(obj):\n    print(\"Type:\", type(obj))\n    print(\"Methods:\")\n    for method in dir(obj):\n        if not method.startswith(\"__\"):\n            print(method)\n\nexplore_object([1, 2, 3])  # Explore methods for a list object\n",
+                        "subtitle_content": "Gain hands-on experience with essential Python commands that help you navigate the language, \n  inspect objects, and debug your code efficiently. This module covers fundamental commands \n  that provide insights into Python objects, their attributes, and runtime behavior.\n\nKey Learning Objectives:\n- Utilize built-in Python functions for object inspection and debugging\n- Understand dynamic typing and explore objects in real-time\n- Learn interactive exploration techniques using Python\u2019s built-in tools\n\nDetailed Command Breakdown:\n1. **Help & Documentation Commands**\n   - `help(object)`: Displays detailed documentation of the given object, method, or class\n   - `dir(object)`: Lists available attributes and methods of an object\n   - `__doc__` attribute: Retrieves the documentation string of an object\n\n2. **Type Inspection Commands**\n   - `type(variable)`: Determines the data type of a variable or object\n   - `isinstance(object, class)`: Checks if an object belongs to a specific class/type\n   - Exploring Python\u2019s **dynamic typing system**\n\n3. **Interactive Exploration**\n   - Using commands in Python\u2019s interactive shell (`REPL`)\n   - Debugging and understanding object properties\n   - Retrieving metadata and available methods dynamically",
+                        "subtitle_help_text": "Understanding Python commands is crucial for debugging, object exploration, and interactive development. \n  Mastering these commands enhances efficiency and makes code navigation easier.\n\nPro Tips:\n- Use `help()` to quickly understand an object\u2019s capabilities\n- Leverage `dir()` for an in-depth look at object attributes\n- Employ `type()` for real-time type checking\n- Experiment with commands in Python\u2019s interactive shell to deepen understanding"
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Getting Started with Python",
+                        "course_mastertitle_breakdown_id": 2,
+                        "course_subtitle": "Python Variables",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/python-variables/,https://docs.python.org/3/reference/lexical_analysis.html#variables,https://www.w3schools.com/python/python_variables.asp",
+                        "subtitle_code": "# Python Variable Examples\n# 1. Assigning Different Data Types\nx = 10  # Integer\nname = \"Python Learner\"  # String\nis_active = True  # Boolean\n\n# 2. Multiple Variable Assignment\na, b, c = 1, 2, 3  # Assigning multiple variables at once\n\n# 3. Type Conversion\nage = \"25\"\nage_int = int(age)  # Convert string to integer\n\n# 4. Mutable vs Immutable\nnumbers = [1, 2, 3]  # Lists are mutable\nnumbers.append(4)  # Modifies the original list\n\n# 5. Demonstrating Variable Scope\ndef demonstrate_scope():\n    local_var = \"I am local\"\n    print(local_var)\n\ndemonstrate_scope()\n",
+                        "subtitle_content": "Understand the concept of variables in Python and how they store data dynamically. Learn about \n  variable assignments, naming conventions, and the difference between mutable and immutable types.\n\nKey Learning Objectives:\n- Learn how variables work in Python\u2019s dynamically-typed system\n- Explore different types of assignments, including multiple and reference assignments\n- Understand naming conventions and best practices\n- Differentiate between mutable and immutable data types\n\nDetailed Variable Breakdown:\n1. **Variable Declaration & Assignment**\n   - Python variables do not require explicit type declaration\n   - Variables store references to objects, not the actual values\n   - Dynamic typing: The type of a variable can change at runtime\n\n2. **Naming Conventions & Best Practices**\n   - Use meaningful and descriptive variable names (`snake_case`)\n   - Variable names must start with a letter or underscore\n   - Avoid using Python\u2019s reserved keywords\n   - Follow PEP 8 guidelines for readability\n\n3. **Variable Types & Assignments**\n   - Basic types: Integer, float, string, boolean\n   - Multiple assignments (`a, b, c = 10, 20, 30`)\n   - Reference assignments and implications of mutability\n   - Understanding memory allocation for mutable vs. immutable types",
+                        "subtitle_help_text": "Variables are fundamental building blocks of Python programming. Understanding their behavior \n  helps prevent common errors and improves code efficiency.\n\nPro Tips:\n- Use clear and meaningful variable names for better readability\n- Be mindful of Python\u2019s dynamic typing system\n- Understand the difference between mutable and immutable objects\n- Follow best practices for variable naming and assignments"
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Getting Started with Python",
+                        "course_mastertitle_breakdown_id": 2,
+                        "course_subtitle": "Python Keywords",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://docs.python.org/3/reference/lexical_analysis.html#keywords,https://realpython.com/python-keywords/,https://www.w3schools.com/python/python_ref_keywords.asp",
+                        "subtitle_code": "# Python Keyword Examples\n# 1. Using Conditional Statements\nif x > 5:\n    print(\"Greater than 5\")\nelse:\n    print(\"Less than or equal to 5\")\n\n# 2. Looping\nfor item in [1, 2, 3, 4, 5]:\n    if item == 3:\n        continue\n    print(item)\n\n# 3. Function Definition\ndef greet(name):\n    return f\"Hello, {name}!\"\n\n# 4. Using a Lambda Function\nsquare = lambda x: x ** 2\nprint(square(4))  # Output: 16\n\n# 5. Exception Handling\ntry:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print(\"Cannot divide by zero\")\n",
+                        "subtitle_content": "Dive into Python\u2019s reserved keywords, which are essential for writing clean and effective Python programs. \n  Learn the purpose of each keyword and how to use them in different programming constructs.\n\nKey Learning Objectives:\n- Identify Python\u2019s built-in keywords and their functions\n- Understand the role of keywords in control flow, functions, and error handling\n- Explore best practices for using keywords in Python programs\n\nDetailed Keyword Breakdown:\n1. **Control Flow Keywords**\n   - `if`, `else`, `elif`: Conditional statements\n   - `for`, `while`: Looping constructs\n   - `break`, `continue`: Controlling loop execution\n\n2. **Function and Class Keywords**\n   - `def`: Defines a function\n   - `class`: Declares a class\n   - `return`: Specifies the function\u2019s return value\n   - `lambda`: Creates anonymous functions\n\n3. **Exception Handling Keywords**\n   - `try`, `except`, `finally`: Handling errors gracefully\n   - `raise`: Manually triggering exceptions\n\n4. **Other Important Keywords**\n   - `import`: Importing external modules\n   - `from`: Selectively importing functions/classes\n   - `as`: Assigning aliases to modules and objects",
+                        "subtitle_help_text": "Python keywords form the foundation of Python programming. Mastering them allows for writing \n  efficient, readable, and structured code.\n\nPro Tips:\n- Avoid using keywords as variable names\n- Learn commonly used keywords to improve coding speed\n- Understand the purpose of each keyword to write better code\n- Practice writing small programs using different keywords"
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Data Types",
+                        "course_mastertitle_breakdown_id": 3,
+                        "course_subtitle": "Primitive Data Types",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://docs.python.org/3/library/stdtypes.html,https://realpython.com/python-data-types/",
+                        "subtitle_code": "# Python Primitive Data Type Examples\n# Integer Type\nx = 10\nprint(type(x))  # Output: <class 'int'>\n\n# Floating-Point Type\nprice = 99.99\nprint(type(price))  # Output: <class 'float'>\n\n# Boolean Type\nis_happy = True\nprint(type(is_happy))  # Output: <class 'bool'>\n\n# String Type\nname = \"Python\"\nprint(type(name))  # Output: <class 'str'>\n\n# Type Conversion\nage = \"25\"\nage_int = int(age)  # Converts string to integer\n",
+                        "subtitle_content": "Primitive data types are the fundamental building blocks of Python programming. \n  These types store simple values and are used in almost every Python program. \n  Understanding them is essential for working with data efficiently.\n\nKey Learning Objectives:\n- Understand the basic data types: `int`, `float`, `bool`, and `str`\n- Learn how to declare and use primitive data types\n- Differentiate between mutable and immutable types\n- Explore type conversion between different primitives\n\n### Breakdown of Primitive Data Types:\n1. **Integer (`int`)**\n   - Represents whole numbers (positive, negative, or zero)\n   - Example: `x = 10`\n\n2. **Floating-Point Number (`float`)**\n   - Represents real numbers with decimal points\n   - Example: `price = 99.99`\n\n3. **Boolean (`bool`)**\n   - Represents True or False values\n   - Used in decision-making (conditionals)\n   - Example: `is_happy = True`\n\n4. **String (`str`)**\n   - Represents text data enclosed in quotes\n   - Example: `name = \"Python\"`\n  \n5. **Type Conversion**\n   - Convert between different primitive types\n   - Example: `int(\"42\")`, `str(100)`, `float(\"3.14\")`\n",
+                        "subtitle_help_text": "Primitive data types are essential in Python as they store individual values like numbers, text, and logical states. \n  They are immutable, meaning their values cannot be changed once assigned. \n\nPro Tips:\n- Use `type(variable)` to check the type of a variable.\n- Understand that integers and floats support mathematical operations.\n- Remember that strings are immutable; use `.replace()` or concatenation for modifications.\n- Convert between types when needed using `int()`, `float()`, `str()`, and `bool()`."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Data Types",
+                        "course_mastertitle_breakdown_id": 3,
+                        "course_subtitle": "Non-Primitive Data Types",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://realpython.com/python-data-structures/,https://docs.python.org/3/tutorial/datastructures.html,https://www.w3schools.com/python/python_sets.asp",
+                        "subtitle_code": "# Python Non-Primitive Data Type Examples\n# 1. List - Ordered, Mutable\nmy_list = [1, 2, 3, 4]\nmy_list.append(5)  # Adding an element\nprint(my_list)  # Output: [1, 2, 3, 4, 5]\n\n# 2. Tuple - Ordered, Immutable\nmy_tuple = (10, 20, 30)\nprint(my_tuple[1])  # Output: 20\n\n# 3. Set - Unordered, Unique Elements\nmy_set = {1, 2, 3, 3}  # Duplicate values are ignored\nprint(my_set)  # Output: {1, 2, 3}\n\n# 4. Dictionary - Key-Value Pairs\nmy_dict = {\"name\": \"Alice\", \"age\": 25}\nprint(my_dict[\"name\"])  # Output: Alice\n",
+                        "subtitle_content": "Non-primitive data types (also called complex data structures) allow you to store and manipulate \n  multiple values efficiently. These include **lists, tuples, sets, and dictionaries**.\n\nKey Learning Objectives:\n- Learn about data structures used to organize data in Python\n- Understand the differences between lists, tuples, sets, and dictionaries\n- Explore when to use each type for optimal performance\n\n### Breakdown of Non-Primitive Data Types:\n1. **List (`list`)**\n   - An ordered, mutable collection of elements\n   - Allows duplicate values\n   - Example: `my_list = [1, 2, 3]`\n   - Supports operations like `append()`, `remove()`, and slicing\n\n2. **Tuple (`tuple`)**\n   - An ordered, immutable collection of elements\n   - Similar to lists but cannot be modified after creation\n   - Example: `my_tuple = (10, 20, 30)`\n\n3. **Set (`set`)**\n   - An unordered collection of unique elements\n   - Does not allow duplicate values\n   - Example: `my_set = {1, 2, 3}`\n   - Supports mathematical set operations like union and intersection\n\n4. **Dictionary (`dict`)**\n   - Stores data in key-value pairs\n   - Keys must be unique\n   - Example: `my_dict = {\"name\": \"Alice\", \"age\": 25}`\n   - Supports operations like adding, updating, and deleting key-value pairs\n",
+                        "subtitle_help_text": "Non-primitive data types allow you to efficiently store, manipulate, and retrieve structured data. \n  Each type has its unique properties:\n\n- **Lists**: Best for ordered collections that need modifications.\n- **Tuples**: Best for fixed data that should not change.\n- **Sets**: Best for unique values and mathematical operations.\n- **Dictionaries**: Best for fast lookups using keys.\n\nPro Tips:\n- Use lists for dynamic data storage where order matters.\n- Use tuples when the data should not be modified.\n- Use sets when uniqueness is required.\n- Use dictionaries for fast, key-based lookups."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "OOPS in Python",
+                        "course_mastertitle_breakdown_id": 5,
+                        "course_subtitle": "Abstraction",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://docs.python.org/3/library/abc.html,https://realpython.com/python-abstract-classes/",
+                        "subtitle_code": "\nfrom abc import ABC, abstractmethod\n\n# Example 1: Creating an Abstract Class\nclass Animal(ABC):\n    @abstractmethod\n    def make_sound(self):\n        pass  # Abstract method without implementation\n\nclass Dog(Animal):\n    def make_sound(self):\n        return \"Bark!\"\n\ndog = Dog()\nprint(dog.make_sound())  # Output: Bark!\n",
+                        "subtitle_content": "Abstraction is an OOP principle that hides implementation details while exposing only the necessary functionality.\n\nKey Learning Objectives:\n- Understand the role of abstraction in OOP\n- Learn how to use abstract classes and methods\n- Implement abstraction using the `ABC` module\n\n### Explanation:\n1. **What is Abstraction?**  \n   - Focuses on **what** an object does rather than **how** it does it.\n2. **Abstract Classes**:  \n   - Cannot be instantiated directly.\n   - Serve as blueprints for subclasses.\n3. **Abstract Methods**:  \n   - Must be implemented by subclasses.",
+                        "subtitle_help_text": "Abstraction helps in designing cleaner and more scalable code by focusing on essential functionality.\n\nPro Tips:\n- Use `ABC` (Abstract Base Classes) to enforce abstraction.\n- Define abstract methods when you expect subclasses to implement them.\n- Helps avoid exposing unnecessary details of a class."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Conditional Statements",
+                        "course_mastertitle_breakdown_id": 4,
+                        "course_subtitle": "If, Elif, and Else Statements",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/controlflow.html,https://realpython.com/python-conditional-statements/",
+                        "subtitle_code": "\n# Example 1: Basic If-Elif-Else Statement\nx = 10\nif x > 5:\n    print(\"x is greater than 5\")\nelif x == 5:\n    print(\"x is equal to 5\")\nelse:\n    print(\"x is less than 5\")\n\n# Example 2: Using Logical Operators\nage = 20\nif age >= 18 and age <= 65:\n    print(\"Eligible for work\")\n\n# Example 3: Nested Conditions\nnum = 15\nif num > 10:\n    if num % 2 == 0:\n        print(\"Even number greater than 10\")\n    else:\n        print(\"Odd number greater than 10\")\n",
+                        "subtitle_content": "Conditional statements allow programs to make decisions and execute different blocks of code based on conditions. \n They are essential for controlling the flow of execution.\n\nKey Learning Objectives:\n- Understand how to use `if`, `elif`, and `else` for decision-making\n- Learn about comparison operators (`==`, `!=`, `>`, `<`, `>=`, `<=`)\n- Implement nested conditional statements for complex logic\n- Use logical operators (`and`, `or`, `not`) to combine conditions\n\n### Explanation:\n1. **`if` Statement**: Executes a block of code if a condition is True.\n2. **`elif` (Else If) Statement**: Checks multiple conditions.\n3. **`else` Statement**: Executes a block of code when all previous conditions are False.",
+                        "subtitle_help_text": "Conditional statements are a fundamental part of programming that enable decision-making in code.\n\nPro Tips:\n- Always ensure proper indentation for readability.\n- Use `elif` to avoid unnecessary nested `if` statements.\n- Use logical operators (`and`, `or`, `not`) for efficient condition handling."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Conditional Statements",
+                        "course_mastertitle_breakdown_id": 4,
+                        "course_subtitle": "For Loop",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://realpython.com/python-for-loop/,https://docs.python.org/3/tutorial/controlflow.html#for-statements",
+                        "subtitle_code": "\n# Example 1: Iterating Over a List\nmy_list = [1, 2, 3, 4, 5]\nfor item in my_list:\n    print(item)\n\n# Example 2: Using range() for a Fixed Loop\nfor num in range(5):\n    print(num)  # Output: 0, 1, 2, 3, 4\n\n# Example 3: Looping Through a Dictionary\nmy_dict = {\"name\": \"Alice\", \"age\": 25}\nfor key, value in my_dict.items():\n    print(f\"{key}: {value}\")\n",
+                        "subtitle_content": "A `for` loop is used for iterating over a sequence (such as a list, tuple, dictionary, or string). \n It automates repetitive tasks efficiently.\n\nKey Learning Objectives:\n- Understand the structure and syntax of a `for` loop\n- Learn how to iterate over different data structures\n- Use `range()` function to generate numeric sequences\n- Implement nested loops for complex iterations\n\n### Explanation:\n1. **Looping through Lists**: Process each item one by one.\n2. **Looping through Strings**: Iterate over characters.\n3. **Using `range()`**: Generate number sequences.\n4. **Looping with Dictionaries**: Iterate over keys and values.",
+                        "subtitle_help_text": "For loops are a powerful tool to iterate over sequences and automate repetitive tasks.\n\nPro Tips:\n- Use `enumerate()` to get both index and value in loops.\n- Use `break` to exit a loop early when needed.\n- Use `continue` to skip the current iteration and move to the next one."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Conditional Statements",
+                        "course_mastertitle_breakdown_id": 4,
+                        "course_subtitle": "While Loop",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/python-while-loop/,https://docs.python.org/3/reference/compound_stmts.html#while",
+                        "subtitle_code": "\n# Example 1: Basic While Loop\ncount = 0\nwhile count < 5:\n    print(count)\n    count += 1\n\n# Example 2: Using break to Exit the Loop\nx = 10\nwhile x > 0:\n    print(x)\n    if x == 5:\n        break\n    x -= 1\n\n# Example 3: Using continue to Skip an Iteration\ny = 0\nwhile y < 10:\n    y += 1\n    if y % 2 == 0:\n        continue  # Skip even numbers\n    print(y)  # Prints only odd numbers\n",
+                        "subtitle_content": "A `while` loop executes a block of code repeatedly as long as a condition remains True. \n It is useful when the number of iterations is not known beforehand.\n\nKey Learning Objectives:\n- Learn how to write `while` loops for indefinite repetition\n- Understand when to use a `while` loop over a `for` loop\n- Implement loop control statements (`break` and `continue`)\n- Prevent infinite loops with proper condition handling\n\n### Explanation:\n1. **Basic While Loop**: Runs as long as the condition is True.\n2. **Using `break` to Exit Early**: Stops execution based on a condition.\n3. **Using `continue` to Skip Iterations**: Moves to the next iteration.",
+                        "subtitle_help_text": "While loops are useful when the number of iterations is not predetermined.\n\nPro Tips:\n- Always ensure there is an exit condition to avoid infinite loops.\n- Use `break` to terminate the loop when necessary.\n- Use `continue` to skip iterations based on conditions."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Conditional Statements",
+                        "course_mastertitle_breakdown_id": 4,
+                        "course_subtitle": "Do While Loop (Simulated)",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://stackoverflow.com/questions/2933399/how-do-i-use-a-do-while-loop-in-python,https://realpython.com/python-loops-while-for/",
+                        "subtitle_code": "\n# Example 1: Simulating a Do-While Loop\nwhile True:\n    user_input = input(\"Enter a positive number: \")\n    if user_input.isdigit() and int(user_input) > 0:\n        print(f\"Valid input: {user_input}\")\n        break\n    print(\"Invalid input. Try again.\")\n\n# Example 2: Using a Flag Variable\nvalid = False\nwhile not valid:\n    num = int(input(\"Enter a number greater than 10: \"))\n    if num > 10:\n        valid = True\n    else:\n        print(\"Try again.\")\n",
+                        "subtitle_content": "Python does not have a built-in `do-while` loop, but similar behavior can be simulated using a `while` loop with an initial execution.\n\nKey Learning Objectives:\n- Understand how a do-while loop ensures at least one iteration\n- Learn how to simulate `do-while` behavior in Python\n- Implement loop termination conditions effectively\n\n### Explanation:\n1. **Standard While Loop**: Evaluates before execution.\n2. **Do-While Simulation**: Ensures at least one execution.\n3. **Using `break` for Controlled Exit**.",
+                        "subtitle_help_text": "Python does not have a `do-while` loop, but it can be simulated using a `while` loop with an initial execution.\n\nPro Tips:\n- Use `while True` with `break` for do-while behavior.\n- Validate user input effectively using loop logic.\n- Ensure termination conditions to prevent infinite loops."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "OOPS in Python",
+                        "course_mastertitle_breakdown_id": 5,
+                        "course_subtitle": "Classes and Objects",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://realpython.com/python3-object-oriented-programming/,https://docs.python.org/3/tutorial/classes.html",
+                        "subtitle_code": "\n# Example 1: Defining a Class and Creating an Object\nclass Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    def introduce(self):\n        return f\"Hi, I am {self.name} and I am {self.age} years old.\"\n\nperson1 = Person(\"Alice\", 25)\nprint(person1.introduce())  # Output: Hi, I am Alice and I am 25 years old.\n\n# Example 2: Modifying Object Attributes\nperson1.age = 26\nprint(person1.age)  # Output: 26\n",
+                        "subtitle_content": "Classes and objects are fundamental to Object-Oriented Programming (OOP) in Python. A class is a **blueprint** for creating objects, and an object is an **instance** of a class.\n\nKey Learning Objectives:\n- Understand the syntax and structure of a class\n- Learn how to create and use objects\n- Implement instance variables and methods\n- Explore real-world examples of classes and objects\n\n### Explanation:\n1. **Defining a Class**: Classes group related attributes (variables) and behaviors (methods).\n2. **Creating Objects**: Objects are instances that interact with class attributes/methods.\n3. **Using the `__init__` Constructor**: Initializes object attributes upon creation.",
+                        "subtitle_help_text": "Classes allow for modular, reusable, and organized code by grouping data and behavior into a single entity.\n\nPro Tips:\n- Use class names in **PascalCase** (e.g., `Person`, `BankAccount`).\n- Keep related functions inside the class for better code organization.\n- Use `self` to refer to instance variables within a class."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "OOPS in Python",
+                        "course_mastertitle_breakdown_id": 5,
+                        "course_subtitle": "Polymorphism",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/polymorphism-in-python/,https://docs.python.org/3/tutorial/classes.html#inheritance",
+                        "subtitle_code": "\n# Example 1: Method Overriding\nclass Bird:\n    def make_sound(self):\n        return \"Chirp\"\n\nclass Dog:\n    def make_sound(self):\n        return \"Bark\"\n\nanimals = [Bird(), Dog()]\nfor animal in animals:\n    print(animal.make_sound())  # Output: Chirp, Bark\n\n# Example 2: Operator Overloading\nclass Vector:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __add__(self, other):\n        return Vector(self.x + other.x, self.y + other.y)\n\nv1 = Vector(2, 3)\nv2 = Vector(4, 5)\nv3 = v1 + v2  # Uses __add__ method\nprint(v3.x, v3.y)  # Output: 6 8\n",
+                        "subtitle_content": "Polymorphism allows different objects to be treated uniformly, enabling **code reusability and flexibility**.\n\nKey Learning Objectives:\n- Understand polymorphism and its advantages\n- Learn how to use method overriding and operator overloading\n- Implement polymorphism using different classes\n\n### Explanation:\n1. **Method Overriding**:  \n   - A subclass provides a different implementation for a method inherited from the parent class.\n2. **Operator Overloading**:  \n   - The same operator behaves differently for different data types.\n3. **Duck Typing**:  \n   - A dynamic approach where an object\u2019s behavior defines its usability.",
+                        "subtitle_help_text": "Polymorphism enhances flexibility by allowing different classes to be used interchangeably.\n\nPro Tips:\n- Use method overriding to customize inherited behavior.\n- Implement operator overloading for intuitive class interactions.\n- Follow the **\"duck typing\"** principle: \"If it walks like a duck and quacks like a duck, it must be a duck!\""
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "OOPS in Python",
+                        "course_mastertitle_breakdown_id": 5,
+                        "course_subtitle": "Inheritance",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/classes.html#inheritance,https://realpython.com/inheritance-composition-python/",
+                        "subtitle_code": "\n# Example 1: Single Inheritance\nclass Animal:\n    def eat(self):\n        return \"This animal eats food.\"\n\nclass Dog(Animal):\n    def bark(self):\n        return \"Bark!\"\n\ndog = Dog()\nprint(dog.eat())  # Output: This animal eats food.\nprint(dog.bark())  # Output: Bark!\n\n# Example 2: Multiple Inheritance\nclass Parent1:\n    def method1(self):\n        return \"Parent1 method\"\n\nclass Parent2:\n    def method2(self):\n        return \"Parent2 method\"\n\nclass Child(Parent1, Parent2):\n    pass\n\nchild = Child()\nprint(child.method1())  # Output: Parent1 method\nprint(child.method2())  # Output: Parent2 method\n",
+                        "subtitle_content": "Inheritance allows a class (child) to inherit attributes and methods from another class (parent), promoting **code reuse and hierarchical relationships**.\n\nKey Learning Objectives:\n- Learn how to create a child class that inherits from a parent class\n- Understand method overriding in inheritance\n- Implement multiple inheritance in Python\n\n### Explanation:\n1. **Single Inheritance**:  \n   - One class inherits from another.\n2. **Multiple Inheritance**:  \n   - A class inherits from multiple parent classes.\n3. **Method Overriding**:  \n   - A child class redefines a parent method.",
+                        "subtitle_help_text": "Inheritance simplifies code organization by promoting reusability and a hierarchical structure.\n\nPro Tips:\n- Use `super()` to call the parent class method in the child class.\n- Avoid deep inheritance hierarchies to maintain code simplicity.\n- Implement method overriding to customize behavior."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "OOPS in Python",
+                        "course_mastertitle_breakdown_id": 5,
+                        "course_subtitle": "Encapsulation",
+                        "course_subtitle_id": 5,
+                        "helpfull_links": "https://realpython.com/python-encapsulation/,https://docs.python.org/3/tutorial/classes.html#private-variables",
+                        "subtitle_code": "\n# Example 1: Private Attributes\nclass BankAccount:\n    def __init__(self, balance):\n        self.__balance = balance  # Private attribute\n\n    def deposit(self, amount):\n        self.__balance += amount\n\n    def get_balance(self):\n        return self.__balance\n\naccount = BankAccount(1000)\naccount.deposit(500)\nprint(account.get_balance())  # Output: 1500\n",
+                        "subtitle_content": "Encapsulation is the process of **hiding** an object\u2019s internal state and requiring all interactions to occur through controlled methods.\n\nKey Learning Objectives:\n- Learn how to define private and protected attributes\n- Implement getter and setter methods\n- Understand access control in Python\n\n### Explanation:\n1. **Public Attributes (`self.var`)**: Accessible anywhere.\n2. **Protected Attributes (`self._var`)**: Indicated by a single underscore, used within subclasses.\n3. **Private Attributes (`self.__var`)**: Indicated by double underscores, not directly accessible outside the class.",
+                        "subtitle_help_text": "Encapsulation protects data integrity by restricting direct access.\n\nPro Tips:\n- Use getter/setter methods for controlled access.\n- Prefix private attributes with `__` to prevent direct modification.\n- Follow Python\u2019s naming conventions for access control."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Functions",
+                        "course_mastertitle_breakdown_id": 6,
+                        "course_subtitle": "Defining and Calling Functions",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions, \n https://realpython.com/python-functions/",
+                        "subtitle_code": "### Example Code: Defining and Calling a Function\n\n# Defining a simple function\ndef greet(name): \n    return f\"Hello, {name}!\"\n\n# Calling the function\nprint(greet(\"Alice\"))  # Output: Hello, Alice!\n\n# Function with no arguments\ndef say_hello():\n    print(\"Hello, World!\")\n\nsay_hello()  # Output: Hello, World!\n",
+                        "subtitle_content": "Functions are reusable blocks of code designed to perform a specific task. \n  Instead of writing the same code multiple times, functions help organize logic, \n  improve readability, and make programs more efficient.\n\nKey Concepts:\n- **Function Definition:** Creating a function using the `def` keyword.\n- **Function Call:** Executing a function by providing necessary arguments.\n- **Code Reusability:** Write once, use multiple times.\n- **Parameters vs. Arguments:** Parameters are placeholders, while arguments are actual values passed to a function.\n\n### Example Walkthrough:\n1. Define a function using `def function_name()`.\n2. Write the function logic inside the function body.\n3. Call the function by using its name followed by parentheses.\n4. Use `return` to send output from the function.",
+                        "subtitle_help_text": "Functions allow you to write modular, reusable, and structured code. \n  By defining a function once, you can call it multiple times with different inputs.\n\n\ud83d\udca1 **Pro Tips:**\n- Keep function names descriptive.\n- Avoid writing long functions; break them into smaller tasks.\n- Always return values when the function needs to produce output."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Functions",
+                        "course_mastertitle_breakdown_id": 6,
+                        "course_subtitle": "Arguments and Return Values",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://realpython.com/defining-your-own-python-function/, \n https://www.w3schools.com/python/python_functions.asp",
+                        "subtitle_code": "### Example Code: Function Arguments & Return Values\n\n# Function with parameters\ndef add(a, b): \n    return a + b\n\n# Calling the function with arguments\nresult = add(5, 7)\nprint(\"Sum:\", result)  # Output: Sum: 12\n\n# Function with default argument\ndef greet(name=\"Guest\"):\n    return f\"Hello, {name}!\"\n\nprint(greet())          # Output: Hello, Guest!\nprint(greet(\"John\"))    # Output: Hello, John!\n",
+                        "subtitle_content": "Functions can take inputs (arguments) and return outputs. Arguments help functions \n  work dynamically with different values, and the return statement sends results back \n  to the caller.\n\nKey Concepts:\n- **Positional Arguments:** Passed based on order.\n- **Keyword Arguments:** Passed with parameter names for clarity.\n- **Default Parameters:** Provide default values if none are given.\n- **Return Statement:** Sends output back to the caller.\n\n### Example Walkthrough:\n1. Define a function with parameters.\n2. Pass values (arguments) while calling the function.\n3. Use `return` to output a computed result.",
+                        "subtitle_help_text": "Functions can take **multiple arguments** and **return computed values**, \n  making them powerful tools in Python.\n\n\ud83d\udca1 **Pro Tips:**\n- Use keyword arguments to make function calls more readable.\n- Functions can return multiple values as a tuple."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Functions",
+                        "course_mastertitle_breakdown_id": 6,
+                        "course_subtitle": "Lambda Functions",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/python-lambda/, \n https://www.geeksforgeeks.org/python-lambda-functions/",
+                        "subtitle_code": "### Example Code: Lambda Functions\n\n# Normal function vs. Lambda function\ndef double(x): \n    return x * 2\n\ndouble_lambda = lambda x: x * 2\n\nprint(double(5))           # Output: 10\nprint(double_lambda(5))    # Output: 10\n\n# Using lambda inside a sorting function\nwords = [\"apple\", \"banana\", \"cherry\"]\nwords.sort(key=lambda x: len(x))\nprint(words)  # Output: [\"apple\", \"cherry\", \"banana\"]\n",
+                        "subtitle_content": "Lambda functions are small, anonymous (unnamed) functions used for short, \n  simple operations. They are written in a single line using the `lambda` keyword.\n\nKey Concepts:\n- **One-liner functions:** Compact and efficient for quick tasks.\n- **No `def` keyword:** Defined using `lambda` instead.\n- **Common use cases:** Sorting, filtering, and functional programming.\n\n### Example Walkthrough:\n1. Define a lambda function with `lambda arguments: expression`.\n2. Use it for quick calculations and transformations.",
+                        "subtitle_help_text": "Lambda functions are useful for **small, throwaway functions** where defining \n  a full function is unnecessary.\n\n\ud83d\udca1 **Pro Tips:**\n- Lambda functions are best for short, one-time-use operations.\n- Use them inside functions like `map()`, `filter()`, and `sorted()`."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Functions",
+                        "course_mastertitle_breakdown_id": 6,
+                        "course_subtitle": "Recursion Function",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://www.geeksforgeeks.org/recursion-in-python/, \n https://realpython.com/python-recursion/",
+                        "subtitle_code": "### Example Code: Recursive Function (Factorial)\n\ndef factorial(n): \n    if n == 0:  # Base case\n        return 1\n    return n * factorial(n - 1)  # Recursive case\n\nprint(factorial(5))  # Output: 120\n",
+                        "subtitle_content": "Recursion is a technique where a function calls itself to solve smaller subproblems \n  of the original problem. It is useful for scenarios like factorial calculation, \n  Fibonacci sequences, and tree traversal.\n\nKey Concepts:\n- **Base Case:** A condition that stops recursion.\n- **Recursive Case:** Function calls itself with a modified argument.\n- **Stack Overflow Risk:** Infinite recursion causes memory overflow.\n\n### Example Walkthrough:\n1. Define a base case to prevent infinite recursion.\n2. Make recursive calls with a modified argument.",
+                        "subtitle_help_text": "Recursion helps solve problems by **breaking them into smaller instances** of \n  the same problem.\n\n\ud83d\udca1 **Pro Tips:**\n- Always define a base case to prevent infinite loops.\n- Use recursion wisely, as excessive recursion can cause memory overflow."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python Functions",
+                        "course_mastertitle_breakdown_id": 6,
+                        "course_subtitle": "Built-in Functions",
+                        "course_subtitle_id": 5,
+                        "helpfull_links": "https://docs.python.org/3/library/functions.html, \n https://www.w3schools.com/python/python_ref_functions.asp",
+                        "subtitle_code": "### Example Code: Built-in Functions\n\nnumbers = [5, 2, 8]\n\nprint(len(numbers))    # Output: 3\nprint(sum(numbers))    # Output: 15\nprint(sorted(numbers)) # Output: [2, 5, 8]\n\ntext = \"Hello, Python!\"\nprint(type(text))  # Output: <class str>\n",
+                        "subtitle_content": "Python provides many built-in functions that perform common tasks without \n  requiring additional coding. These functions make programming efficient and \n  save time.\n\nKey Concepts:\n- **len():** Returns the length of an object.\n- **sum():** Calculates the sum of numbers in an iterable.\n- **sorted():** Returns a sorted version of an iterable.\n- **type():** Returns the data type of an object.\n\n### Example Walkthrough:\n1. Use built-in functions to perform common tasks efficiently.\n2. Pass different data types to observe their behavior.",
+                        "subtitle_help_text": "Built-in functions are powerful tools that help perform operations \n  quickly and efficiently.\n\n\ud83d\udca1 **Pro Tips:**\n- Always check Python\u2019s official documentation for available built-in functions.\n- Use built-in functions instead of writing custom implementations."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python File Handling",
+                        "course_mastertitle_breakdown_id": 7,
+                        "course_subtitle": "Reading Files",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files,  \n https://realpython.com/read-write-files-python/",
+                        "subtitle_code": "### Example Code: Reading a File in Python\n\n# Reading an entire file\nwith open(\"example.txt\", \"r\") as file:\n    content = file.read()\n    print(content)\n\n# Reading line by line\nwith open(\"example.txt\", \"r\") as file:\n    for line in file:\n        print(line.strip())\n\n# Reading all lines into a list\nwith open(\"example.txt\", \"r\") as file:\n    lines = file.readlines()\n    print(lines)\n",
+                        "subtitle_content": "File handling allows us to work with files\u2014reading, writing, and manipulating them efficiently.  \n  This section covers different ways to **read** files in Python using built-in functions.  \n\nKey Concepts:  \n- **open() function:** Used to open a file in different modes (`\"r\"` for read).  \n- **read() method:** Reads the entire file content as a string.  \n- **readline() method:** Reads one line at a time.  \n- **readlines() method:** Reads all lines and returns a list.  \n- **with statement:** Automatically handles file closing.  \n\n### Example Walkthrough:  \n1. Open a file using `\"r\"` mode.  \n2. Read the content using `.read()`, `.readline()`, or `.readlines()`.  \n3. Always close the file or use `with open()` for automatic handling.",
+                        "subtitle_help_text": "Reading files in Python is done using the `open()` function.  \n  The **\"r\" mode** opens the file in read mode.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Always use `with open()` to **automatically close the file** after reading.  \n- Use `.strip()` to remove newline characters when reading lines."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python File Handling",
+                        "course_mastertitle_breakdown_id": 7,
+                        "course_subtitle": "Writing Files",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://realpython.com/read-write-files-python/,  \n https://www.w3schools.com/python/python_file_write.asp",
+                        "subtitle_code": "### Example Code: Writing to a File\n\n# Writing to a new file (overwrites if exists)\nwith open(\"example.txt\", \"w\") as file:\n    file.write(\"Hello, World!\\n\")\n    file.write(\"Python file handling is easy!\\n\")\n\n# Appending to an existing file\nwith open(\"example.txt\", \"a\") as file:\n    file.write(\"Appending a new line.\\n\")\n",
+                        "subtitle_content": "Writing files in Python allows saving and updating data for later use.  \n  Python provides multiple file modes for writing:  \n\n- **\"w\" mode (Write):** Creates a new file or overwrites an existing one.  \n- **\"a\" mode (Append):** Adds content to an existing file without overwriting.  \n- **\"x\" mode (Exclusive Creation):** Creates a new file but raises an error if the file exists.  \n\n### Example Walkthrough:  \n1. Open a file in `\"w\"` mode to write new content.  \n2. Use `.write()` or `.writelines()` to insert text.  \n3. Use `\"a\"` mode to append data instead of overwriting.",
+                        "subtitle_help_text": "File writing in Python is simple with the `open()` function.  \n  The **\"w\" mode** creates a file if it does not exist or overwrites existing content.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Use `\"a\"` mode to **add** content without overwriting.  \n- Always ensure file paths are correct before writing."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Error Handling",
+                        "course_mastertitle_breakdown_id": 8,
+                        "course_subtitle": "Custom Exceptions",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/errors.html#user-defined-exceptions,  \n https://realpython.com/python-exceptions/#defining-custom-exceptions",
+                        "subtitle_code": "### Example Code: Creating and Using a Custom Exception\n\nclass CustomError(Exception):\n    pass\n\ntry:\n    raise CustomError(\"This is a custom exception.\")\nexcept CustomError as e:\n    print(e)\n",
+                        "subtitle_content": "Python allows defining **custom exceptions** for application-specific errors.  \n  Instead of using generic exceptions, you can create your own by **inheriting from Exception**.  \n\n### Why Use Custom Exceptions?  \n- Makes debugging easier with specific error messages.  \n- Helps enforce business logic in applications.  \n- Allows error categorization in larger projects.",
+                        "subtitle_help_text": "Custom exceptions provide **flexibility** for defining **application-specific errors**.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Use clear, meaningful names for custom exception classes.  \n- Always inherit from `Exception` when defining custom exceptions."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python File Handling",
+                        "course_mastertitle_breakdown_id": 7,
+                        "course_subtitle": "Working with CSV and JSON",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/python-csv/,  \n https://realpython.com/python-json/",
+                        "subtitle_code": "### Example Code: Working with CSV and JSON\n\nimport json\n\n# Writing JSON data\ndata = {\"name\": \"Alice\", \"age\": 25}\nwith open(\"data.json\", \"w\") as file:\n    json.dump(data, file)\n\nimport csv\n\n# Writing to a CSV file\nwith open(\"data.csv\", \"w\", newline=\"\") as file:\n    writer = csv.writer(file)\n    writer.writerow([\"Name\", \"Age\"])\n    writer.writerow([\"Alice\", 25])\n",
+                        "subtitle_content": "Python provides built-in support for **CSV** (Comma-Separated Values) and **JSON** (JavaScript Object Notation) files.  \n  These formats are widely used for storing structured data.\n\n### CSV (Comma-Separated Values):  \n- Text-based format for storing tabular data.  \n- Handled using Python\u2019s `csv` module.  \n- Data is written and read in **rows and columns**.\n\n### JSON (JavaScript Object Notation):  \n- Text format for **storing and exchanging structured data** (similar to dictionaries in Python).  \n- Handled using Python\u2019s `json` module.  \n- Supports **nested data structures**.",
+                        "subtitle_help_text": "CSV and JSON files are commonly used for **structured data storage**.  \n  The `json` and `csv` modules provide easy handling.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Use `json.load()` to read JSON files and `csv.reader()` for CSV files.  \n- JSON supports **nested structures**, while CSV is a simple row-column format."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python File Handling",
+                        "course_mastertitle_breakdown_id": 7,
+                        "course_subtitle": "File Exceptions and Error Handling",
+                        "course_subtitle_id": 4,
+                        "helpfull_links": "https://realpython.com/python-exceptions/,  \n https://docs.python.org/3/tutorial/errors.html",
+                        "subtitle_code": "### Example Code: Handling File Errors\n\ntry:\n    with open(\"nonexistent.txt\", \"r\") as file:\n        content = file.read()\nexcept FileNotFoundError:\n    print(\"Error: File not found!\")\nexcept PermissionError:\n    print(\"Error: You do not have permission to access this file.\")\n",
+                        "subtitle_content": "Errors can occur during file operations, such as missing files or permission issues.  \n  Python provides **try-except blocks** to handle these exceptions gracefully.  \n\n### Common File Errors:  \n- **FileNotFoundError:** The specified file does not exist.  \n- **PermissionError:** The user does not have access to the file.  \n- **IsADirectoryError:** Tried to open a directory instead of a file.",
+                        "subtitle_help_text": "File handling errors should be managed using `try-except` blocks.  \n  This ensures that the program **does not crash** when a file operation fails.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Always use exception handling for file operations.  \n- Check if a file exists using `os.path.exists(\"filename\")` before accessing it."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Python File Handling",
+                        "course_mastertitle_breakdown_id": 7,
+                        "course_subtitle": "File Operations",
+                        "course_subtitle_id": 5,
+                        "helpfull_links": "https://docs.python.org/3/library/os.html,  \n https://realpython.com/python-os-module/",
+                        "subtitle_code": "### Example Code: File Operations\n\nimport os\n\n# Rename a file\nos.rename(\"old.txt\", \"new.txt\")\n\n# Delete a file\nos.remove(\"new.txt\")\n\n# Check if a file exists before deleting\nif os.path.exists(\"example.txt\"):\n    os.remove(\"example.txt\")\nelse:\n    print(\"File not found!\")\n",
+                        "subtitle_content": "Python allows managing files programmatically\u2014renaming, deleting, and checking file existence.  \n  The `os` module provides functions for these operations.  \n\n### Key Operations:  \n- **Rename a file:** `os.rename(old_name, new_name)`  \n- **Delete a file:** `os.remove(filename)`  \n- **Check if a file exists:** `os.path.exists(filename)`",
+                        "subtitle_help_text": "The `os` module provides powerful tools for managing files.  \n  Always check if a file **exists** before deleting or renaming it.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Use `os.path.exists()` to **verify** a file before performing operations.  \n- Be careful when using `os.remove()`, as deleted files **cannot be recovered**."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Error Handling",
+                        "course_mastertitle_breakdown_id": 8,
+                        "course_subtitle": "Introduction to Exceptions",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://realpython.com/python-exceptions/#what-are-exceptions,  \n https://docs.python.org/3/tutorial/errors.html",
+                        "subtitle_code": "### Example Code: Handling a Division Error\n\ntry:\n    result = 10 / 0\nexcept ZeroDivisionError:\n    print(\"Error: Cannot divide by zero!\")\n",
+                        "subtitle_content": "Errors, known as exceptions in Python, occur when a program encounters an issue that disrupts normal execution.  \n  Exception handling is **crucial** for writing reliable and error-free code.  \n\n### Why Are Exceptions Important?  \n- Prevents program crashes  \n- Improves user experience by providing meaningful error messages  \n- Allows debugging and logging for better troubleshooting  \n\n### Common Types of Exceptions:  \n- **ZeroDivisionError:** Division by zero  \n- **FileNotFoundError:** File does not exist  \n- **TypeError:** Incompatible data types  \n- **ValueError:** Incorrect value passed to a function",
+                        "subtitle_help_text": "Exceptions occur during runtime and can cause a program to crash if not handled.  \n  Python provides a robust exception-handling mechanism using `try-except` blocks.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Always anticipate potential errors in your code.  \n- Learn common exceptions to debug issues efficiently."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Error Handling",
+                        "course_mastertitle_breakdown_id": 8,
+                        "course_subtitle": "Handling Exceptions with Try-Except",
+                        "course_subtitle_id": 2,
+                        "helpfull_links": "https://docs.python.org/3/tutorial/errors.html#handling-exceptions,  \n https://realpython.com/python-exceptions/",
+                        "subtitle_code": "### Example Code: Handling File Not Found Error\n\ntry:\n    with open(\"nonexistent_file.txt\", \"r\") as file:\n        content = file.read()\nexcept FileNotFoundError:\n    print(\"Error: File not found!\")\n",
+                        "subtitle_content": "Python provides the `try-except` block to **catch and handle errors gracefully**, ensuring that the program does not crash unexpectedly.  \n\n### How Try-Except Works:  \n1. Code inside `try` is executed.  \n2. If an error occurs, `except` catches the specific exception.  \n3. The program continues execution instead of terminating.  \n\n### Best Practices:  \n- Always use specific exceptions instead of a general `except:` block.  \n- Use multiple `except` blocks to handle different exceptions separately.",
+                        "subtitle_help_text": "The `try-except` block prevents unexpected crashes and allows for **graceful error handling**.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Avoid using `except:` without specifying an exception\u2014it catches all errors, making debugging harder.  \n- Log errors instead of just printing them for better debugging."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Error Handling",
+                        "course_mastertitle_breakdown_id": 8,
+                        "course_subtitle": "Raising and Catching Exceptions",
+                        "course_subtitle_id": 3,
+                        "helpfull_links": "https://realpython.com/python-exceptions/#raising-exceptions,  \n https://docs.python.org/3/tutorial/errors.html#raising-exceptions",
+                        "subtitle_code": "### Example Code: Raising and Handling Custom Errors\n\ndef check_age(age):\n    if age < 18:\n        raise ValueError(\"Age must be 18 or older.\")\n    return \"Valid age!\"\n\ntry:\n    check_age(16)\nexcept ValueError as e:\n    print(e)\n",
+                        "subtitle_content": "Sometimes, you need to deliberately raise an exception to **enforce rules** in your program.  \n  Python provides the `raise` keyword for this purpose.  \n\n### Why Raise Exceptions?  \n- To prevent invalid operations (e.g., negative age values)  \n- To enforce business rules (e.g., only adults can register)  \n- To improve debugging by catching errors early",
+                        "subtitle_help_text": "Raising exceptions allows **better control** over program behavior by handling invalid cases early.  \n\n\ud83d\udca1 **Pro Tips:**  \n- Always provide a clear error message when raising exceptions.  \n- Catch raised exceptions using `try-except` to avoid program termination."
+                    },
+                    {
+                        "course_id": 1,
+                        "course_mastertitle_breakdown": "Objective and outcomes",
+                        "course_mastertitle_breakdown_id": 1,
+                        "course_subtitle": "Why Python?",
+                        "course_subtitle_id": 1,
+                        "helpfull_links": "https://www.python.org/about/,https://www.tiobe.com/tiobe-index/python/,https://insights.stackoverflow.com/survey/2021#most-popular-technologies-language",
+                        "subtitle_code": null,
+                        "subtitle_content": "Explore the comprehensive advantages of Python as a versatile and powerful programming language. This section delves into Python's unique strengths, industry applications, and why it has become a top choice for beginners and professionals alike.\n\nKey Highlights:\n- Versatility: Used in web development, data science, artificial intelligence, machine learning, scientific computing, and more\n- Beginner-Friendly: Simple, readable syntax that closely resembles natural language\n- Extensive Libraries: Rich ecosystem of libraries and frameworks for various domains\n- Career Opportunities: High demand in tech industries, data science, and software development\n- Community Support: Large, active global community providing continuous support and resources\n\nLearning Outcomes:\n1. Understand Python's role in modern programming\n2. Recognize the language's applications across different industries\n3. Identify career paths and opportunities with Python skills\n4. Develop a foundational mindset for programming problem-solving",
+                        "subtitle_help_text": "Python is a game-changing programming language that opens doors to numerous technological domains. From web development to data science, Python offers a versatile and powerful toolset for solving complex problems."
+                    }
+                ],
+                "user_progress": [
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 5,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 5,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 5,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 4,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 1,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 2,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    },
+                    {
+                        "course_id": 1,
+                        "course_subtitle_id": 3,
+                        "course_subtitle_progress": 100,
+                        "user_id": 1
+                    }
+                ]
             }
-          ]
-        },
-        {
-          "batch_id": 2,
-          "batch_name": "testing1",
-          "users": [
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Demo0"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "DJJK"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Dinesh N"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "In Progress",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Maddy123"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 1,
-                  "completion_status": "Completed",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": 3,
-                  "completion_status": "Completed",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Arun priyaraaj P V"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Sudharsan D S"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "JJJ"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Madsan"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Shellie Melton"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "Demo"
-            },
-            {
-              "courses": [
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Python for Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Web Scraping with Python Selenium",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                },
-                {
-                  "certificate_id": null,
-                  "completion_status": "Not Started",
-                  "course_name": "Cloud Computing For Beginners",
-                  "enrollment_status": "Not Enrolled",
-                  "updated_date": "2025-05-20T10:22:25.128602",
-                  "validity": 30
-                }
-              ],
-              "initial_assessment": "completed",
-              "username": "FFF"
-            }
-          ]
         }
-      ],
-      "total_batches": 2,
-      "total_courses": 10,
-      "total_users": 18
-    },
-    "status": "success"
-  }
-  
+    ],
+    "message": "Course content fetched successfully"
+}

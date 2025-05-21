@@ -8,6 +8,7 @@ import partner1 from "@/assets/images/partner1.png"
 import partner2 from "@/assets/images/partner2.png"
 import partner3 from "@/assets/images/partner3.png"
 import partner4 from "@/assets/images/partner4.png"
+import partner5 from "@/assets/images/partner5.png"
 import heroImage from "@/assets/images/hero.png"
 import visionImage from "@/assets/images/vision.png"
 import { ClipboardCheck, Award, Briefcase, BrainCircuit, Rocket, Laptop2 } from "lucide-react"
@@ -137,7 +138,7 @@ const Home = () => {
                 <div className="flex flex-col items-center justify-center flex-1">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-8 mt-4">
                     <Image src={partner1} alt="Industry Partner 1" width={120} height={60} className="object-contain" />
-                    <Image src={partner2} alt="Industry Partner 2" width={120} height={60} className="object-contain" />
+                    <Image src={partner5} alt="Industry Partner 2" width={120} height={60} className="object-contain" />
                   </div>
                   <div className="opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                     <span className="text-gray-500">We are partnered with the best in the industry. Professionals from the industry are our mentors and guide us to make our courses more relevant and practical.</span>
@@ -151,8 +152,9 @@ const Home = () => {
                 <h3 className="text-2xl font-semibold mb-4">Institution</h3>
                 <div className="flex flex-col items-center justify-center flex-1">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-8 mt-4">
-                    <Image src={partner3} alt="Institution Partner 1" width={120} height={60} className="object-contain" />
-                    <Image src={partner4} alt="Institution Partner 2" width={120} height={60} className="object-contain" />
+                  <Image src={partner2} alt="Institution Partner 1" width={120} height={60} className="object-contain" />
+                    <Image src={partner3} alt="Institution Partner 2" width={120} height={60} className="object-contain" />
+                    <Image src={partner4} alt="Institution Partner 3" width={120} height={60} className="object-contain" />
                   </div>
                   <div className="opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                     <span className="text-gray-500">We are partnered with the best institutions in the country as well as abroad, Contacting abroad institution exposure program to our students to make them more competitive in the job market.</span>
