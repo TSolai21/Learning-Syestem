@@ -1,7 +1,7 @@
 import axios from "axios"
 
 export const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://lms-be-sqpa.onrender.com/api",
 })
 
 // Add a request interceptor to include auth token if available
