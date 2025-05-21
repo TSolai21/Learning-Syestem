@@ -5,480 +5,560 @@
                 "assessment_options": [
                     {
                         "course_id": 1,
+                        "option_id": 1,
                         "option_sequence": 1,
                         "option_text": "To create machine code directly",
                         "question_id": 1
                     },
                     {
                         "course_id": 1,
+                        "option_id": 2,
                         "option_sequence": 2,
                         "option_text": "To write low-level assembly language",
                         "question_id": 1
                     },
                     {
                         "course_id": 1,
+                        "option_id": 3,
                         "option_sequence": 3,
                         "option_text": "Python is a versatile, high-level programming language used for web development, data analysis, AI, and more.",
                         "question_id": 1
                     },
                     {
                         "course_id": 1,
+                        "option_id": 4,
                         "option_sequence": 4,
                         "option_text": "To perform operating system tasks only",
                         "question_id": 1
                     },
                     {
                         "course_id": 1,
+                        "option_id": 5,
                         "option_sequence": 1,
                         "option_text": "A fixed memory space in RAM",
                         "question_id": 2
                     },
                     {
                         "course_id": 1,
+                        "option_id": 6,
                         "option_sequence": 2,
                         "option_text": "A reserved memory location to store values",
                         "question_id": 2
                     },
                     {
                         "course_id": 1,
+                        "option_id": 7,
                         "option_sequence": 3,
                         "option_text": "An immutable storage area",
                         "question_id": 2
                     },
                     {
                         "course_id": 1,
+                        "option_id": 8,
                         "option_sequence": 4,
                         "option_text": "A built-in Python data type",
                         "question_id": 2
                     },
                     {
                         "course_id": 1,
+                        "option_id": 9,
                         "option_sequence": 1,
                         "option_text": "import",
                         "question_id": 3
                     },
                     {
                         "course_id": 1,
+                        "option_id": 10,
                         "option_sequence": 2,
                         "option_text": "True",
                         "question_id": 3
                     },
                     {
                         "course_id": 1,
+                        "option_id": 11,
                         "option_sequence": 3,
                         "option_text": "loop",
                         "question_id": 3
                     },
                     {
                         "course_id": 1,
+                        "option_id": 12,
                         "option_sequence": 4,
                         "option_text": "string",
                         "question_id": 3
                     },
                     {
                         "course_id": 1,
+                        "option_id": 13,
                         "option_sequence": 1,
                         "option_text": "Primitive types store simple values; non-primitive types are collections like lists, dictionaries.",
                         "question_id": 4
                     },
                     {
                         "course_id": 1,
+                        "option_id": 14,
                         "option_sequence": 2,
                         "option_text": "Primitive types are immutable; non-primitive types are always mutable.",
                         "question_id": 4
                     },
                     {
                         "course_id": 1,
+                        "option_id": 15,
                         "option_sequence": 3,
                         "option_text": "Primitive types cannot be used in loops.",
                         "question_id": 4
                     },
                     {
                         "course_id": 1,
+                        "option_id": 16,
                         "option_sequence": 4,
                         "option_text": "Primitive types are only integers.",
                         "question_id": 4
                     },
                     {
                         "course_id": 1,
+                        "option_id": 17,
                         "option_sequence": 1,
                         "option_text": "For loop",
                         "question_id": 5
                     },
                     {
                         "course_id": 1,
+                        "option_id": 18,
                         "option_sequence": 2,
                         "option_text": "While loop",
                         "question_id": 5
                     },
                     {
                         "course_id": 1,
+                        "option_id": 19,
                         "option_sequence": 3,
                         "option_text": "Do-while loop",
                         "question_id": 5
                     },
                     {
                         "course_id": 1,
+                        "option_id": 20,
                         "option_sequence": 4,
                         "option_text": "None of the above",
                         "question_id": 5
                     },
                     {
                         "course_id": 1,
+                        "option_id": 21,
                         "option_sequence": 1,
                         "option_text": "class MyClass:",
                         "question_id": 6
                     },
                     {
                         "course_id": 1,
+                        "option_id": 22,
                         "option_sequence": 2,
                         "option_text": "def MyClass:",
                         "question_id": 6
                     },
                     {
                         "course_id": 1,
+                        "option_id": 23,
                         "option_sequence": 3,
                         "option_text": "object MyClass:",
                         "question_id": 6
                     },
                     {
                         "course_id": 1,
+                        "option_id": 24,
                         "option_sequence": 4,
                         "option_text": "None of the above",
                         "question_id": 6
                     },
                     {
                         "course_id": 1,
+                        "option_id": 25,
                         "option_sequence": 1,
                         "option_text": "A function is reusable; lambda is for anonymous short operations.",
                         "question_id": 7
                     },
                     {
                         "course_id": 1,
+                        "option_id": 26,
                         "option_sequence": 2,
                         "option_text": "A lambda function is only for loops.",
                         "question_id": 7
                     },
                     {
                         "course_id": 1,
+                        "option_id": 27,
                         "option_sequence": 3,
                         "option_text": "Both are identical.",
                         "question_id": 7
                     },
                     {
                         "course_id": 1,
+                        "option_id": 28,
                         "option_sequence": 4,
                         "option_text": "Functions cannot have return values.",
                         "question_id": 7
                     },
                     {
                         "course_id": 1,
+                        "option_id": 29,
                         "option_sequence": 1,
                         "option_text": "read()",
                         "question_id": 8
                     },
                     {
                         "course_id": 1,
+                        "option_id": 30,
                         "option_sequence": 2,
                         "option_text": "readlines()",
                         "question_id": 8
                     },
                     {
                         "course_id": 1,
+                        "option_id": 31,
                         "option_sequence": 3,
                         "option_text": "readline()",
                         "question_id": 8
                     },
                     {
                         "course_id": 1,
+                        "option_id": 32,
                         "option_sequence": 4,
                         "option_text": "None of the above",
                         "question_id": 8
                     },
                     {
                         "course_id": 1,
+                        "option_id": 33,
                         "option_sequence": 1,
                         "option_text": "The program terminates with an error traceback.",
                         "question_id": 9
                     },
                     {
                         "course_id": 1,
+                        "option_id": 34,
                         "option_sequence": 2,
                         "option_text": "The program skips the error.",
                         "question_id": 9
                     },
                     {
                         "course_id": 1,
+                        "option_id": 35,
                         "option_sequence": 3,
                         "option_text": "The program converts the error to 0.",
                         "question_id": 9
                     },
                     {
                         "course_id": 1,
+                        "option_id": 36,
                         "option_sequence": 4,
                         "option_text": "The program continues normally.",
                         "question_id": 9
                     },
                     {
                         "course_id": 1,
+                        "option_id": 37,
                         "option_sequence": 1,
                         "option_text": "To catch and handle exceptions during runtime.",
                         "question_id": 10
                     },
                     {
                         "course_id": 1,
+                        "option_id": 38,
                         "option_sequence": 2,
                         "option_text": "To skip errors in the code.",
                         "question_id": 10
                     },
                     {
                         "course_id": 1,
+                        "option_id": 39,
                         "option_sequence": 3,
                         "option_text": "To test functions.",
                         "question_id": 10
                     },
                     {
                         "course_id": 1,
+                        "option_id": 40,
                         "option_sequence": 4,
                         "option_text": "To stop the program on error.",
                         "question_id": 10
                     },
                     {
                         "course_id": 1,
+                        "option_id": 41,
                         "option_sequence": 1,
                         "option_text": "List",
                         "question_id": 11
                     },
                     {
                         "course_id": 1,
+                        "option_id": 42,
                         "option_sequence": 2,
                         "option_text": "Tuple",
                         "question_id": 11
                     },
                     {
                         "course_id": 1,
+                        "option_id": 43,
                         "option_sequence": 3,
                         "option_text": "String",
                         "question_id": 11
                     },
                     {
                         "course_id": 1,
+                        "option_id": 44,
                         "option_sequence": 4,
                         "option_text": "Integer",
                         "question_id": 11
                     },
                     {
                         "course_id": 1,
+                        "option_id": 45,
                         "option_sequence": 1,
                         "option_text": "Using //",
                         "question_id": 12
                     },
                     {
                         "course_id": 1,
+                        "option_id": 46,
                         "option_sequence": 2,
                         "option_text": "Using the # symbol",
                         "question_id": 12
                     },
                     {
                         "course_id": 1,
+                        "option_id": 47,
                         "option_sequence": 3,
                         "option_text": "Using \" \" (double quotes)",
                         "question_id": 12
                     },
                     {
                         "course_id": 1,
+                        "option_id": 48,
                         "option_sequence": 4,
                         "option_text": "Using /* */",
                         "question_id": 12
                     },
                     {
                         "course_id": 1,
+                        "option_id": 49,
                         "option_sequence": 1,
                         "option_text": "1.5",
                         "question_id": 13
                     },
                     {
                         "course_id": 1,
+                        "option_id": 50,
                         "option_sequence": 2,
                         "option_text": "2",
                         "question_id": 13
                     },
                     {
                         "course_id": 1,
+                        "option_id": 51,
                         "option_sequence": 3,
                         "option_text": "1 (integer division result)",
                         "question_id": 13
                     },
                     {
                         "course_id": 1,
+                        "option_id": 52,
                         "option_sequence": 4,
                         "option_text": "Error",
                         "question_id": 13
                     },
                     {
                         "course_id": 1,
+                        "option_id": 53,
                         "option_sequence": 1,
                         "option_text": "Using the \"inherit\" keyword",
                         "question_id": 14
                     },
                     {
                         "course_id": 1,
+                        "option_id": 54,
                         "option_sequence": 2,
                         "option_text": "Using the \"class\" keyword with the parent class in parentheses",
                         "question_id": 14
                     },
                     {
                         "course_id": 1,
+                        "option_id": 55,
                         "option_sequence": 3,
                         "option_text": "Using the \"super\" keyword",
                         "question_id": 14
                     },
                     {
                         "course_id": 1,
+                        "option_id": 56,
                         "option_sequence": 4,
                         "option_text": "Using \"inherits from\"",
                         "question_id": 14
                     },
                     {
                         "course_id": 1,
+                        "option_id": 57,
                         "option_sequence": 1,
                         "option_text": "4",
                         "question_id": 15
                     },
                     {
                         "course_id": 1,
+                        "option_id": 58,
                         "option_sequence": 2,
                         "option_text": "5",
                         "question_id": 15
                     },
                     {
                         "course_id": 1,
+                        "option_id": 59,
                         "option_sequence": 3,
                         "option_text": "6",
                         "question_id": 15
                     },
                     {
                         "course_id": 1,
+                        "option_id": 60,
                         "option_sequence": 4,
                         "option_text": "None of the above",
                         "question_id": 15
                     },
                     {
                         "course_id": 1,
+                        "option_id": 61,
                         "option_sequence": 1,
                         "option_text": "The \"is\" keyword checks for object equality.",
                         "question_id": 16
                     },
                     {
                         "course_id": 1,
+                        "option_id": 62,
                         "option_sequence": 2,
                         "option_text": "The \"is\" keyword compares two variables for memory reference equality.",
                         "question_id": 16
                     },
                     {
                         "course_id": 1,
+                        "option_id": 63,
                         "option_sequence": 3,
                         "option_text": "The \"is\" keyword is used in functions only.",
                         "question_id": 16
                     },
                     {
                         "course_id": 1,
+                        "option_id": 64,
                         "option_sequence": 4,
                         "option_text": "The \"is\" keyword checks type.",
                         "question_id": 16
                     },
                     {
                         "course_id": 1,
+                        "option_id": 65,
                         "option_sequence": 1,
                         "option_text": "\"open(filename, w)\"",
                         "question_id": 17
                     },
                     {
                         "course_id": 1,
+                        "option_id": 66,
                         "option_sequence": 2,
                         "option_text": "\"write(filename)\"",
                         "question_id": 17
                     },
                     {
                         "course_id": 1,
+                        "option_id": 67,
                         "option_sequence": 3,
                         "option_text": "\"writefile(filename)\"",
                         "question_id": 17
                     },
                     {
                         "course_id": 1,
+                        "option_id": 68,
                         "option_sequence": 4,
                         "option_text": "\"write_mode(filename)\"",
                         "question_id": 17
                     },
                     {
                         "course_id": 1,
+                        "option_id": 69,
                         "option_sequence": 1,
                         "option_text": "Use a \"finally\" block.",
                         "question_id": 18
                     },
                     {
                         "course_id": 1,
+                        "option_id": 70,
                         "option_sequence": 2,
                         "option_text": "Handle them in separate except blocks.",
                         "question_id": 18
                     },
                     {
                         "course_id": 1,
+                        "option_id": 71,
                         "option_sequence": 3,
                         "option_text": "Use a tuple in a single except block.",
                         "question_id": 18
                     },
                     {
                         "course_id": 1,
+                        "option_id": 72,
                         "option_sequence": 4,
                         "option_text": "Both options 2 and 3 are correct.",
                         "question_id": 18
                     },
                     {
                         "course_id": 1,
+                        "option_id": 73,
                         "option_sequence": 1,
                         "option_text": "print()",
                         "question_id": 19
                     },
                     {
                         "course_id": 1,
+                        "option_id": 74,
                         "option_sequence": 2,
                         "option_text": "input()",
                         "question_id": 19
                     },
                     {
                         "course_id": 1,
+                        "option_id": 75,
                         "option_sequence": 3,
                         "option_text": "read()",
                         "question_id": 19
                     },
                     {
                         "course_id": 1,
+                        "option_id": 76,
                         "option_sequence": 4,
                         "option_text": "fetch()",
                         "question_id": 19
                     },
                     {
                         "course_id": 1,
+                        "option_id": 77,
                         "option_sequence": 1,
                         "option_text": "<class int>",
                         "question_id": 20
                     },
                     {
                         "course_id": 1,
+                        "option_id": 78,
                         "option_sequence": 2,
                         "option_text": "<class float>",
                         "question_id": 20
                     },
                     {
                         "course_id": 1,
+                        "option_id": 79,
                         "option_sequence": 3,
                         "option_text": "<class str>",
                         "question_id": 20
                     },
                     {
                         "course_id": 1,
+                        "option_id": 80,
                         "option_sequence": 4,
                         "option_text": "<class bool>",
                         "question_id": 20
@@ -559,18 +639,6 @@
                     },
                     {
                         "course_id": 1,
-                        "question": "What is the output of 3//2 in Python?",
-                        "question_id": 13,
-                        "question_sequenceid": 13
-                    },
-                    {
-                        "course_id": 1,
-                        "question": "Which keyword is used to inherit a class in Python?",
-                        "question_id": 14,
-                        "question_sequenceid": 14
-                    },
-                    {
-                        "course_id": 1,
                         "question": "What is the result of len(\"Hello\")?",
                         "question_id": 15,
                         "question_sequenceid": 15
@@ -580,12 +648,6 @@
                         "question": "What does the \"is\" keyword compare in Python?",
                         "question_id": 16,
                         "question_sequenceid": 16
-                    },
-                    {
-                        "course_id": 1,
-                        "question": "What is the syntax to open a file in write mode in Python?",
-                        "question_id": 17,
-                        "question_sequenceid": 17
                     },
                     {
                         "course_id": 1,
@@ -604,6 +666,24 @@
                         "question": "What is the result of type(3.14)?",
                         "question_id": 20,
                         "question_sequenceid": 20
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the output of 3//2 in Python?",
+                        "question_id": 13,
+                        "question_sequenceid": 13
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "Which keyword is used to inherit a class in Python?",
+                        "question_id": 14,
+                        "question_sequenceid": 14
+                    },
+                    {
+                        "course_id": 1,
+                        "question": "What is the syntax to open a file in write mode in Python?",
+                        "question_id": 17,
+                        "question_sequenceid": 17
                     }
                 ],
                 "course_content": [

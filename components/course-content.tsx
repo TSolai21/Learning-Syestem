@@ -31,6 +31,7 @@ interface AssessmentOption {
   option_text: string;
   question_id: number;
   course_id: number;
+  option_id?: number;
 }
 
 interface CourseContentProps {
@@ -73,7 +74,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
 
     // Scroll to top when lesson changes
     if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: "smooth" }) // Smooth scroll to top
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" })
     }
   }, [selectedContentId, transformedData])
 
@@ -96,7 +97,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
 
     const contentDiv = contentRef.current
     contentDiv.addEventListener("scroll", handleScroll)
-    handleScroll() // Check progress on mount
+    handleScroll()
 
     return () => {
       contentDiv.removeEventListener("scroll", handleScroll)
@@ -122,6 +123,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
       const response = await api.post("/check_answer", {
         question_id: questionId,
         option_text: selectedOption.option_text,
+        option_id: selectedOption.option_id
       });
 
       if (response.data.status === "success") {
@@ -192,7 +194,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
   };
 
   // Check if all questions have been answered correctly
-  const allQuestionsAnsweredCorrectly = assessmentData?.questions.length > 0 &&
+  const allQuestionsAnsweredCorrectly = Array.isArray(assessmentData?.questions) && assessmentData.questions.length > 0 &&
     assessmentData.questions.every(question => answerStatus[question.question_id] === true);
 
   if (!currentContent && !showAssessmentContent) {
@@ -206,13 +208,14 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
   // Conditional rendering for assessment or course content
   if (showAssessmentContent) {
     if (overallProgress >= 90) {
-      if (!assessmentData) {
+      if (!assessmentData || !Array.isArray(assessmentData.questions) || assessmentData.questions.length === 0) {
         return (
           <div className="flex items-center justify-center h-full px-4 text-center">
-            <p className="text-xl text-gray-700">Loading assessment data...</p>
+            <p className="text-xl text-gray-700">Loading assessment data or no questions available...</p>
           </div>
         );
       }
+
       // Render the actual assessment questions and options here
       return (
         <div className="mt-6 px-4">
@@ -228,20 +231,20 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
                       .map(option => {
                         const isSelected = selectedAnswers[question.question_id] === option.option_sequence;
                         const status = answerStatus[question.question_id];
-                        const isCorrect = status === true && isSelected;
+                        const isCorrect = status === true;
                         const isIncorrect = status === false && isSelected;
 
                         return (
                           <Button
                             key={option.option_sequence}
-                            variant={isCorrect ? "success" : isIncorrect ? "destructive" : (isSelected ? "default" : "outline")}
-                            className={`w-full justify-start text-left ${isCorrect ? "bg-green-500 hover:bg-green-600 text-white" : isIncorrect ? "bg-red-500 hover:bg-red-600 text-white" : ""}`}
+                            variant={isSelected ? (isCorrect ? "default" : "destructive") : "outline"}
+                            className={`w-full justify-start text-left ${isCorrect && isSelected ? "bg-green-500 hover:bg-green-600 text-white" : isIncorrect ? "bg-red-500 hover:bg-red-600 text-white" : ""}`}
                             onClick={() => handleOptionClick(question.question_id, option.option_sequence)}
                             disabled={status === true}
                           >
                             {option.option_text}
-                            {isCorrect && <CheckCircle2 className="ml-2 h-4 w-4" />}
-                            {isIncorrect && <XCircle className="ml-2 h-4 w-4" />}
+                            {isSelected && isCorrect && <CheckCircle2 className="ml-2 h-4 w-4" />}
+                            {isSelected && isIncorrect && <XCircle className="ml-2 h-4 w-4" />}
                           </Button>
                         )
                       })}
@@ -263,7 +266,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
           <p className="text-xl text-gray-700">
             You must complete at least 90% of the course lessons to access the assessment.
             <br />
-            Your current progress is {overallProgress}%.
+            Your current progress is {overallProgress.toFixed(0)}%.
           </p>
         </div>
       );
@@ -273,46 +276,50 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
   // Render normal course content if not showing assessment
   return (
     <div ref={contentRef} className="mt-6 overflow-auto h-[calc(100vh-120px)] pb-5 pr-4">
-      <h2 className="text-2xl font-bold mb-6 text-primary">{currentContent.course_subtitle}</h2>
+      {currentContent && (
+        <>
+          <h2 className="text-2xl font-bold mb-6 text-primary">{currentContent.course_subtitle}</h2>
 
-      <div className="prose max-w-none">
-        {currentContent.subtitle_content.split("\n\n").map((paragraph, index) => (
-          <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-            {paragraph}
-          </p>
-        ))}
-      </div>
+          <div className="prose max-w-none">
+            {currentContent.subtitle_content.split("\n\n").map((paragraph, index) => (
+              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                {paragraph}
+              </p>
+            ))}
+          </div>
 
-      {currentContent.subtitle_code && (
-        <Card className="my-6">
-          <CardContent className="p-4 overflow-x-auto">
-            <pre className="bg-gray-900 text-gray-100 p-4 rounded-md text-sm font-mono whitespace-pre-wrap">
-              {currentContent.subtitle_code}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
+          {currentContent.subtitle_code && (
+            <Card className="my-6">
+              <CardContent className="p-4 overflow-x-auto">
+                <pre className="bg-gray-900 text-gray-100 p-4 rounded-md text-sm font-mono whitespace-pre-wrap">
+                  {currentContent.subtitle_code}
+                </pre>
+              </CardContent>
+            </Card>
+          )}
 
-      {currentContent.helpfull_links && (
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">Helpful Resources</h3>
-          <Card>
-            <CardContent className="p-4">
-              <ul className="space-y-2">
-                {currentContent.helpfull_links.split(",").map((link, index) => (
-                  <li key={index}>
-                    <Button variant="link" className="p-0 h-auto flex items-center gap-2 text-blue-600" asChild>
-                      <a href={link.trim()} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink size={16} />
-                        {link.trim()}
-                      </a>
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        </div>
+          {currentContent.helpfull_links && (
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">Helpful Resources</h3>
+              <Card>
+                <CardContent className="p-4">
+                  <ul className="space-y-2">
+                    {currentContent.helpfull_links.split(",").map((link, index) => (
+                      <li key={index}>
+                        <Button variant="link" className="p-0 h-auto flex items-center gap-2 text-blue-600" asChild>
+                          <a href={link.trim()} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink size={16} />
+                            {link.trim()}
+                          </a>
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
