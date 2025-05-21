@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { api } from "@/lib/api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { BatchCourseValidityDisplay } from "@/components/batch-course-validity-display"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronRight, CopyIcon, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface Course {
   course_id: number
@@ -80,6 +81,28 @@ export default function AdminPage() {
 
   // Tree view state for expanded nodes
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+
+  // New states for batch actions
+  const [isAddUsersDialogOpen, setIsAddUsersDialogOpen] = useState(false);
+  const [isExtendValidityDialogOpen, setIsExtendValidityDialogOpen] = useState(false);
+  const [currentBatch, setCurrentBatch] = useState<any>(null); // To store the batch data for the dialogs
+  const [numUsersToAdd, setNumUsersToAdd] = useState<string>("1");
+  const [extendValidityDays, setExtendValidityDays] = useState<string>("30");
+  const [selectedCourseForValidity, setSelectedCourseForValidity] = useState<number | null>(null);
+  const [generatedBatchKeys, setGeneratedBatchKeys] = useState<string[]>([]); // For keys generated within a batch
+
+  // State to hold courses specific to the currently selected batch for validity extension
+  const [batchCourses, setBatchCourses] = useState<Course[]>([]);
+
+  const router = useRouter();
+
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("hasCompletedQuestions");
+    localStorage.removeItem("lastActivity");
+    router.push("/login");
+  };
 
   const toggleNode = (id: string) => {
     const newExpandedNodes = new Set(expandedNodes);
@@ -333,9 +356,109 @@ export default function AdminPage() {
     URL.revokeObjectURL(link.href);
   };
 
+  // Handle adding users to a specific batch
+  const handleAddUsersToBatch = async () => {
+    if (!currentBatch || parseInt(numUsersToAdd, 10) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please select a batch and enter a valid number of users.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setGeneratedBatchKeys([]); // Clear previous keys
+    try {
+      const response = await api.post('/admin/generate-user-keys', {
+        batch_id: currentBatch.batch_id,
+        num_users: parseInt(numUsersToAdd, 10)
+      });
+
+      if (response.data.status === "success") {
+        // The response structure is an array of arrays, so flatten it
+        const keys = response.data.keys.flat();
+        setGeneratedBatchKeys(keys);
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+      } else {
+        console.error('API Error generating batch keys:', response.data);
+        toast({
+          title: "Error",
+          description: response.data.message || "Failed to generate keys for batch.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating batch keys:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate keys for batch. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle extending validity for a specific batch and course
+  const handleExtendValidity = async () => {
+    if (!currentBatch || selectedCourseForValidity === null || parseInt(extendValidityDays, 10) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please select a batch, a course, and enter a valid number of days.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await api.post('/admin/extend-validity', {
+        batch_id: currentBatch.batch_id,
+        course_id: selectedCourseForValidity,
+        validity_days: parseInt(extendValidityDays, 10)
+      });
+
+      if (response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+        // Optionally, refetch analytics data to show updated validity dates
+        // fetchAnalytics(); // You might need to make fetchAnalytics available outside useEffect or call it explicitly
+      } else {
+        console.error('API Error extending validity:', response.data);
+        toast({
+          title: "Error",
+          description: response.data.message || "Failed to extend validity.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error extending validity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to extend validity. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+
+      {/* Logout Button */}
+      <div className="absolute top-4 right-4">
+        <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+          <LogOut className="h-5 w-5" />
+        </Button>
+      </div>
 
       <Tabs defaultValue="global-analysis" className="space-y-4">
         <TabsList>
@@ -587,7 +710,7 @@ export default function AdminPage() {
                     <div className="space-y-4 text-gray-700">
                       {batchesData.map((batch) => (
                         <div key={batch.batch_id} className="border rounded-md p-4 bg-gray-50">
-                          <button onClick={() => toggleNode(`batch-${batch.batch_id}`)} className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800">
+                          <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`batch-${batch.batch_id}`)}>
                              <span>
                                {expandedNodes.has(`batch-${batch.batch_id}`) ? (
                                  <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
@@ -596,7 +719,71 @@ export default function AdminPage() {
                                )}
                                 Batch: {batch.batch_name} ({batch.users.length} Users, {batch.users[0]?.courses?.length || 0} Courses per user)
                              </span>
-                          </button>
+                             {/* Action Buttons for Batch */}
+                             <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent toggling tree node
+                                    setCurrentBatch(batch);
+                                    setIsAddUsersDialogOpen(true);
+                                    setNumUsersToAdd("1"); // Reset input
+                                    setGeneratedBatchKeys([]); // Clear previous generated keys
+                                    // Extract unique courses from the batch users
+                                    const uniqueCourseIds = new Set<number>();
+                                    batch.users.forEach((user: any) => {
+                                      if (user.courses && Array.isArray(user.courses)) {
+                                        user.courses.forEach((course: any) => {
+                                          if (course && course.course_id !== undefined && course.course_id !== null) {
+                                            uniqueCourseIds.add(course.course_id);
+                                          }
+                                        });
+                                      }
+                                    });
+                                    // Filter the main courses list based on unique batch course IDs
+                                    const filteredBatchCourses = courses.filter(course => uniqueCourseIds.has(course.course_id));
+                                    setBatchCourses(filteredBatchCourses);
+                                    console.log("Unique Course IDs from Batch:", uniqueCourseIds);
+                                    console.log("All available courses:", courses);
+                                    console.log("Filtered Batch Courses for Select:", filteredBatchCourses);
+                                  }}
+                                >
+                                  Add Users
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Prevent toggling tree node
+                                    setCurrentBatch(batch);
+                                    setIsExtendValidityDialogOpen(true);
+                                    setExtendValidityDays("30"); // Reset input
+                                    setSelectedCourseForValidity(null); // Reset selection
+                                    console.log("Current Batch Data:", batch);
+                                    // Extract unique courses from the batch users
+                                    const uniqueCourseIds = new Set<number>();
+                                    batch.users.forEach((user: any) => {
+                                      if (user.courses && Array.isArray(user.courses)) {
+                                        user.courses.forEach((course: any) => {
+                                          if (course && course.course_id !== undefined && course.course_id !== null) {
+                                            uniqueCourseIds.add(course.course_id);
+                                          }
+                                        });
+                                      }
+                                    });
+                                    // Filter the main courses list based on unique batch course IDs
+                                    const filteredBatchCourses = courses.filter(course => uniqueCourseIds.has(course.course_id));
+                                    setBatchCourses(filteredBatchCourses);
+                                    console.log("Unique Course IDs from Batch:", uniqueCourseIds);
+                                    console.log("All available courses:", courses);
+                                    console.log("Filtered Batch Courses for Select:", filteredBatchCourses);
+                                  }}
+                                >
+                                  Extend Validity
+                                </Button>
+                             </div>
+                          </div>
                           {expandedNodes.has(`batch-${batch.batch_id}`) && ( // Batch content
                             <div className="ml-6 mt-4 space-y-4 border-l pl-4">
                               {batch.users.map((user: any) => (
@@ -632,6 +819,97 @@ export default function AdminPage() {
                   )
                  )}
               </div>
+
+              {/* Add Users to Batch Dialog */}
+              <Dialog open={isAddUsersDialogOpen} onOpenChange={setIsAddUsersDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Add Users to Batch: {currentBatch?.batch_name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="numUsersToAdd" className="text-right">
+                        Number of Users
+                      </Label>
+                      <Input
+                        id="numUsersToAdd"
+                        type="number"
+                        value={numUsersToAdd}
+                        onChange={(e) => setNumUsersToAdd(e.target.value)}
+                        className="col-span-3"
+                        min="1"
+                      />
+                    </div>
+                    {generatedBatchKeys.length > 0 && (
+                       <div className="grid grid-cols-4 items-start gap-4">
+                         <Label className="text-right pt-2">Generated Keys</Label>
+                         <div className="col-span-3 max-h-40 overflow-y-auto space-y-2 border rounded-md p-2 w-full">
+                           {generatedBatchKeys.map((key, index) => (
+                             <div key={index} className="font-mono text-sm bg-gray-100 p-1 rounded break-all flex items-center justify-between">
+                                <span>{key}</span>
+                                <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(key)} title="Copy key">
+                                  <CopyIcon className="h-4 w-4 text-gray-600" />
+                                </Button>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleAddUsersToBatch} disabled={isLoading || parseInt(numUsersToAdd, 10) <= 0 || !currentBatch}>
+                      {isLoading ? "Generating..." : "Generate Keys"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              {/* Extend Validity Dialog */}
+              <Dialog open={isExtendValidityDialogOpen} onOpenChange={setIsExtendValidityDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Extend Validity for Batch: {currentBatch?.batch_name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="extendValidityDays" className="text-right">
+                        Extend By (Days)
+                      </Label>
+                       <Input
+                        id="extendValidityDays"
+                        type="number"
+                        value={extendValidityDays}
+                        onChange={(e) => setExtendValidityDays(e.target.value)}
+                        className="col-span-3"
+                        min="1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="selectCourseForValidity" className="text-right">
+                        Select Course
+                      </Label>
+                       <Select value={selectedCourseForValidity?.toString() || ""} onValueChange={(value) => setSelectedCourseForValidity(parseInt(value, 10))}>
+                         <SelectTrigger id="selectCourseForValidity" className="col-span-3">
+                           <SelectValue placeholder="Select a course" />
+                         </SelectTrigger>
+                         <SelectContent>
+                           {/* Use the filtered batchCourses state */}
+                           {batchCourses.map((course: any) => (
+                               <SelectItem key={course.course_id} value={course.course_id.toString()}>
+                                 {course.course_name}
+                               </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleExtendValidity} disabled={isLoading || parseInt(extendValidityDays, 10) <= 0 || selectedCourseForValidity === null || !currentBatch}>
+                      {isLoading ? "Extending..." : "Extend Validity"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
 
             </CardContent>
           </Card>
