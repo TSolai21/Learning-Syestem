@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { BatchCourseValidityDisplay } from "@/components/batch-course-validity-display"
 
 interface Course {
   course_id: number
@@ -65,6 +66,27 @@ export default function AdminPage() {
 
   const { toast } = useToast()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  // Analytics states
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalBatches, setTotalBatches] = useState(0);
+  const [totalCoursesAnalytics, setTotalCoursesAnalytics] = useState(0); // Renamed to avoid conflict
+  const [batchesData, setBatchesData] = useState<any[]>([]); // State for hierarchical data
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+
+  // Tree view state for expanded nodes
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+
+  const toggleNode = (id: string) => {
+    const newExpandedNodes = new Set(expandedNodes);
+    if (newExpandedNodes.has(id)) {
+      newExpandedNodes.delete(id);
+    } else {
+      newExpandedNodes.add(id);
+    }
+    setExpandedNodes(newExpandedNodes);
+  };
 
   // Validation logic for each step
   const validateStep = (step: number) => {
@@ -216,6 +238,51 @@ export default function AdminPage() {
     fetchCourses()
   }, [])
 
+  // Fetch analytics data when the tab is active
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setAnalyticsLoading(true);
+        setAnalyticsError(null); // Clear previous errors
+        const response = await api.get("/admin/batch-analytics");
+
+        console.log("Batch Analytics API Response:", response.data); // Log the response
+
+        // Check if the expected data structure exists (response.data.data)
+        if (response.data && response.data.data) {
+          const data = response.data.data; // Correctly access data
+          setTotalUsers(data.total_users || 0); // Use || 0 for safety
+          setTotalBatches(data.total_batches || 0); // Use || 0 for safety
+          setTotalCoursesAnalytics(data.total_courses || 0); // Use || 0 for safety
+          setBatchesData(data.batches || []); // Use || [] for safety
+        } else {
+          // Handle unexpected response structure
+          console.error("Batch Analytics API returned unexpected data structure:", response.data);
+          setAnalyticsError("Received unexpected data from the server.");
+           setTotalUsers(0);
+          setTotalBatches(0);
+          setTotalCoursesAnalytics(0);
+          setBatchesData([]);
+        }
+
+      } catch (error: any) {
+        console.error("Error fetching analytics:", error);
+        setAnalyticsError("Failed to fetch analytics data. " + (error.message || '')); // Include error message
+        setTotalUsers(0);
+        setTotalBatches(0);
+        setTotalCoursesAnalytics(0);
+        setBatchesData([]);
+      } finally {
+        setAnalyticsLoading(false);
+      }
+    };
+
+    // Only fetch if the 'users' tab is the active one (assuming default value reflects this)
+    // A more robust solution would involve checking the actual active tab state if available
+     fetchAnalytics();
+
+  }, []); // Depend on [] to fetch once on mount, or add a state variable tied to tab change if needed
+
   // Helper to reload courses
   const reloadCourses = async () => {
     try {
@@ -285,9 +352,61 @@ export default function AdminPage() {
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>User Management</CardTitle>
+              <CardTitle>User Management & Analytics</CardTitle>
             </CardHeader>
             <CardContent>
+              {/* Analytics Overview */}
+              <div className="grid gap-4 md:grid-cols-3 mb-8">
+                 {analyticsLoading ? (
+                   // Skeleton loader for analytics cards
+                   <> {[...Array(3)].map((_, index) => (
+                       <Card key={index}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                           <div className="h-4 w-4 bg-gray-200 rounded-full"></div>
+                        </CardHeader>
+                        <CardContent>
+                           <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+                           <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                   </>
+                 ) : (
+                   // Actual analytics cards
+                   <>
+                     <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{totalUsers}</div>
+                        <p className="text-xs text-muted-foreground">Overall users in the system</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Batches</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{totalBatches}</div>
+                        <p className="text-xs text-muted-foreground">Total active batches</p>
+                      </CardContent>
+                    </Card>
+                     <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{totalCoursesAnalytics}</div>
+                        <p className="text-xs text-muted-foreground">Total available courses</p>
+                      </CardContent>
+                    </Card>
+                   </>
+                 )}
+              </div>
+
+              {/* Create New Users Dialog */}
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button>Create New Users</Button>
@@ -379,6 +498,88 @@ export default function AdminPage() {
                   )}
                 </DialogContent>
               </Dialog>
+
+              {/* Batch Analytics Tree View */}
+              <div className="mt-8">
+                 <h3 className="text-lg font-semibold mb-4">Batch and User Analytics</h3>
+                {analyticsLoading ? (
+                   // Skeleton loader for tree view
+                   <div className="space-y-4">
+                     {[...Array(3)].map((_, batchIndex) => (
+                       <div key={batchIndex} className="border rounded-md p-4 space-y-2">
+                         <div className="flex items-center justify-between w-full">
+                           <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                            <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                         </div>
+                         <div className="ml-4 mt-2 space-y-2">
+                           {[...Array(2)].map((_, userIndex) => (
+                             <div key={userIndex} className="border-t pt-2 space-y-2">
+                                <div className="flex items-center justify-between w-full">
+                                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                                   <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                                </div>
+                                <div className="ml-4 mt-2 space-y-2">
+                                  {[...Array(1)].map((_, courseIndex) => (
+                                     <div key={courseIndex} className="border-t pt-2">
+                                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                         <div className="h-4 bg-gray-200 rounded w-1/3 mt-1"></div>
+                                         <div className="h-4 bg-gray-200 rounded w-1/4 mt-1"></div>
+                                     </div>
+                                  ))}
+                                </div>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : analyticsError ? (
+                  <div className="text-red-500">{analyticsError}</div>
+                ) : ( 
+                  batchesData.length === 0 ? (
+                    <div className="text-gray-500">No batch data available.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {batchesData.map((batch) => (
+                        <div key={batch.batch_id} className="border rounded-md p-4">
+                          <button onClick={() => toggleNode(`batch-${batch.batch_id}`)} className="flex items-center justify-between w-full text-left font-semibold">
+                            <span>Batch: {batch.batch_name} ({batch.users.length} Users, {batch.users[0]?.courses?.length || 0} Courses per user)</span>
+                             <span>{expandedNodes.has(`batch-${batch.batch_id}`) ? 'Collapse' : 'Expand'}</span>
+                          </button>
+                          {expandedNodes.has(`batch-${batch.batch_id}`) && (
+                            <div className="ml-4 mt-4 space-y-4">
+                              {batch.users.map((user: any) => (
+                                 <div key={user.username} className="border-t pt-4">
+                                    <button onClick={() => toggleNode(`user-${batch.batch_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium">
+                                      <span>User: {user.username} ({user.courses.length} Courses)</span>
+                                       <span>{expandedNodes.has(`user-${batch.batch_id}-${user.username}`) ? 'Collapse' : 'Expand'}</span>
+                                    </button>
+                                    {expandedNodes.has(`user-${batch.batch_id}-${user.username}`) && (
+                                      <div className="ml-4 mt-4 space-y-2">
+                                        {user.courses.map((course: any) => (
+                                           <div key={course.course_name} className="border-t pt-2 text-sm">
+                                              <div className="font-medium">Course: {course.course_name}</div>
+                                              <div>Enrollment Status: {course.enrollment_status}</div>
+                                              <div>Completion Status: {course.completion_status}</div>
+                                              {/* Real-time validity countdown */}
+                                              {course.validity !== undefined && course.updated_date && (
+                                                 <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
+                                              )}
+                                           </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                 </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                 )}
+              </div>
+
             </CardContent>
           </Card>
         </TabsContent>
