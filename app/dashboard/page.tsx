@@ -127,12 +127,12 @@ const Home = () => {
       </section>
 
       {/* Partners Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-6 md:px-12 text-center">
+      {/* <section className="py-16"> */}
+        {/* <div className="container mx-auto px-6 md:px-12 text-center">
           <h2 className="text-4xl font-bold text-gray-900 mb-8">Our Partners</h2>
-          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8">
+          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8"> */}
             {/* Industry Card */}
-            <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
+            {/* <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
               <CardContent className="p-8 flex flex-col items-center justify-center h-full">
                 <h3 className="text-2xl font-semibold mb-4">Industry</h3>
                 <div className="flex flex-col items-center justify-center flex-1">
@@ -145,9 +145,9 @@ const Home = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
             {/* Institution Card */}
-            <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
+            {/* <Card className="flex-1 transition-transform hover:scale-105 group cursor-pointer">
               <CardContent className="p-8 flex flex-col items-center justify-center h-full">
                 <h3 className="text-2xl font-semibold mb-4">Institution</h3>
                 <div className="flex flex-col items-center justify-center flex-1">
@@ -164,7 +164,7 @@ const Home = () => {
             </Card>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -244,8 +244,16 @@ const Home = () => {
         </div>
 
         {/* Footer Bottom */}
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-          © 2025 TATTI. All rights reserved.
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="text-center text-gray-400 text-sm mb-4">
+            <p className="max-w-2xl mx-auto">
+              <strong>Disclaimer:</strong> This Learning Management System (LMS) is built for educational purposes only. 
+              We referenced several job portals and resources are intended for learning and demonstration purposes.
+            </p>
+          </div>
+          <div className="text-center text-gray-400 text-sm">
+            © 2025 TATTI. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>

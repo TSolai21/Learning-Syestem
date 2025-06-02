@@ -156,7 +156,7 @@ export function CourseNavigation({
               className={`text-sm flex-1 text-left px-4 py-2 rounded transition-all ${activeContentId === "assessment" ? "bg-primary/10 text-primary font-medium" : "text-gray-700 hover:bg-gray-100"
                 }`}
             >
-              Course Assessment
+              Practice Assessment
             </button>
           </div>
         </li>

@@ -173,7 +173,7 @@ export function Assessment({ questions, options, courseId, onComplete }: Assessm
 
     return (
         <div className="mt-6 overflow-auto h-[calc(100vh-120px)] pb-5 pr-4">
-            <h2 className="text-2xl font-bold mb-6 text-primary">Course Assessment</h2>
+            <h2 className="text-2xl font-bold mb-6 text-primary">Practice Assessment</h2>
 
             <div className="space-y-6">
                 {questions.sort((a, b) => a.question_sequenceid - b.question_sequenceid).map((question) => {

@@ -12,6 +12,12 @@ import { useToast } from "@/hooks/use-toast"
 import { api } from "@/lib/api"
 import { Loader } from "@/components/loader"
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   User,
   Briefcase,
   MapPin,
@@ -31,6 +37,8 @@ import {
   BookOpen,
   Linkedin,
   Github,
+  Download,
+  Eye,
 } from "lucide-react"
 
 interface UserDetails {
@@ -97,6 +105,8 @@ export default function ProfilePage() {
   const [editData, setEditData] = useState<UserDetails | null>(null)
   const { toast } = useToast()
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null)
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false)
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -433,6 +443,109 @@ export default function ProfilePage() {
     setFieldErrors({})
     setIsEditing(true)
   }
+
+  const handleViewCertificate = (certificate: Certificate) => {
+    setSelectedCertificate(certificate)
+    setIsCertificateModalOpen(true)
+  }
+
+  const handleDownloadCertificate = async (certificate: Certificate) => {
+    try {
+      // Create a canvas element to generate the certificate
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not get canvas context');
+
+      // Set canvas size (A4 size in pixels at 96 DPI, landscape orientation)
+      canvas.width = 1123; // A4 width in pixels
+      canvas.height = 794; // A4 height in pixels
+
+      // Fill background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Add border (blue, matching the view modal)
+      ctx.strokeStyle = '#3b82f6'; // Tailwind blue-500
+      ctx.lineWidth = 30;
+      ctx.strokeRect(15, 15, canvas.width - 30, canvas.height - 30);
+
+      // Content area padding
+      const contentPadding = 60;
+      const contentWidth = canvas.width - 2 * contentPadding;
+      const contentHeight = canvas.height - 4 * contentPadding;
+      const contentX = contentPadding;
+      const contentY = contentPadding;
+
+      // Center text function helper
+      const centeredText = (text: string, y: number, color: string, font: string) => {
+        ctx.fillStyle = color;
+        ctx.font = font;
+        ctx.textAlign = 'center';
+        ctx.fillText(text, canvas.width / 2, y);
+      };
+
+      // Header (Companian powered by TATTI)
+      centeredText('Companian', contentY + 100, '#2563eb', 'bold 60px Arial'); // Tailwind blue-600
+      centeredText('Powered by TATTI', contentY + 150, '#4b5563', '28px Arial'); // Tailwind gray-600
+
+      // Main certification text
+      centeredText('This is to certify that', contentY + 250, '#1f2937', '28px Arial'); // Tailwind gray-800
+      centeredText(userDetails?.user_name || '', contentY + 310, '#1f2937', 'bold 48px Arial');
+      centeredText('has successfully completed the course', contentY + 370, '#1f2937', '28px Arial');
+
+      // Course details
+      centeredText(certificate.certificate_name, contentY + 450, '#2563eb', 'bold 44px Arial');
+      centeredText(`Level: ${certificate.certification_level}`, contentY + 500, '#4b5563', '28px Arial');
+
+      // Footer section (Signature and Date)
+      const footerY = canvas.height - 150; // Y position for the footer content
+      const signatureX = canvas.width / 4; // X position for signature
+      const dateX = (canvas.width / 4) * 3; // X position for date
+      const lineLength = 250; // Length of the signature line
+      const footerTextColor = '#4b5563'; // Tailwind gray-600
+      const footerTextSize = '20px Arial';
+      const footerLineColor = '#4b5563';
+
+      // Course Instructor Signature Line
+      // ctx.strokeStyle = footerLineColor;
+      // ctx.lineWidth = 2;
+      // ctx.beginPath();
+      // ctx.moveTo(signatureX - lineLength / 2, footerY);
+      // ctx.lineTo(signatureX + lineLength / 2, footerY);
+      // ctx.stroke();
+     
+      // Convert canvas to blob
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob);
+        }, 'image/png');
+      });
+
+      if (!blob) throw new Error('Failed to generate certificate image');
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${certificate.certificate_name}-certificate.png`; // Download as PNG with certificate name
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "Certificate downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error generating certificate:', error);
+      toast({
+        title: "Error",
+        description: `Failed to download certificate: ${(error as Error).message}`,
+        variant: "destructive",
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -848,8 +961,8 @@ export default function ProfilePage() {
 
                     {userCertificates.length > 0 ? (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {userCertificates.map((cert) => (
-                          <Card key={cert.certificate_id} className="overflow-hidden">
+                        {userCertificates.map((cert, index) => (
+                          <Card key={`${cert.certificate_id}-${index}`} className="overflow-hidden">
                             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 text-white">
                               <div className="flex items-start justify-between">
                                 <div>
@@ -867,10 +980,19 @@ export default function ProfilePage() {
                               <div className="flex justify-between items-center mt-4">
                                 <span className="text-sm text-gray-500">ID: {cert.certificate_id}</span>
                                 <div className="flex gap-2">
-                                  <Button size="sm" variant="outline">
-                                    View
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => handleViewCertificate(cert)}
+                                  >
+                                    <Eye size={16} className="mr-2" /> View
                                   </Button>
-                                  <Button size="sm">Download</Button>
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => handleDownloadCertificate(cert)}
+                                  >
+                                    <Download size={16} className="mr-2" /> Download
+                                  </Button>
                                 </div>
                               </div>
                             </CardContent>
@@ -962,6 +1084,58 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      <Dialog open={isCertificateModalOpen} onOpenChange={setIsCertificateModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Certificate of Completion</DialogTitle>
+          </DialogHeader>
+          {selectedCertificate && (
+            <div className="relative bg-white p-8 rounded-lg border-2 border-gray-200">
+              {/* Certificate Border */}
+              <div className="absolute inset-0 border-8 border-blue-500 rounded-lg opacity-20"></div>
+              
+              {/* Certificate Content */}
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <h1 className="text-4xl font-bold text-blue-600 mb-2">Companian</h1>
+                  <p className="text-gray-600">Powered by TATTI</p>
+                </div>
+
+                {/* Main Content */}
+                <div className="text-center mb-8">
+                  <p className="text-gray-600 mb-4">This is to certify that</p>
+                  <h2 className="text-3xl font-bold text-gray-800 mb-4">{userDetails?.user_name}</h2>
+                  <p className="text-gray-600 mb-4">has successfully completed the course</p>
+                  <h3 className="text-2xl font-bold text-blue-600 mb-2">{selectedCertificate.certificate_name}</h3>
+                  <p className="text-gray-600">Level: {selectedCertificate.certification_level}</p>
+                </div>
+
+                {/* Footer */}
+                <div className="flex justify-between items-end mt-12">
+                  <div className="text-center">
+                    <div className="border-t border-gray-400 w-48 pt-2">
+                      <p className="text-sm text-gray-600">Course Instructor</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="border-t border-gray-400 w-48 pt-2">
+                      <p className="text-sm text-gray-600">Date: {new Date(selectedCertificate.enrollment_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Certificate ID */}
+                <div className="text-center mt-8">
+                  <p className="text-sm text-gray-500">Certificate ID: {selectedCertificate.certificate_id}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

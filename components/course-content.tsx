@@ -8,6 +8,7 @@ import { debounce } from "lodash"
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { useRouter } from 'next/navigation';
 
 interface CourseContentItem {
   course_mastertitle_breakdown_id: number
@@ -52,7 +53,9 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
   const contentRef = useRef<HTMLDivElement>(null)
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [answerStatus, setAnswerStatus] = useState<Record<number, boolean | null>>({});
+  const [isSubmittingAssessment, setIsSubmittingAssessment] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   // Memoized transformation of data
   const transformedData = useMemo(
@@ -158,6 +161,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
 
   // Handle assessment submission
   const handleSubmitAssessment = async () => {
+    setIsSubmittingAssessment(true); // Disable button immediately
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const answers = Object.keys(selectedAnswers).map(questionId => ({
       question_id: parseInt(questionId),
@@ -176,6 +180,8 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
           title: "Assessment Submitted",
           description: response.data.message,
         });
+        // Redirect to home page after successful submission
+        router.push('/dashboard');
       } else {
         toast({
           title: "Submission Failed",
@@ -190,6 +196,8 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
         description: "Failed to submit assessment.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmittingAssessment(false); // Re-enable button (though redirection will happen on success)
     }
   };
 
@@ -219,7 +227,7 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
       // Render the actual assessment questions and options here
       return (
         <div className="mt-6 px-4">
-          <h2 className="text-2xl font-bold mb-6 text-primary">Course Assessment</h2>
+          <h2 className="text-2xl font-bold mb-6 text-primary">Practice Assessment</h2>
           <div className="space-y-6">
             {assessmentData.questions.map((question) => (
               <Card key={question.question_id}>
@@ -254,7 +262,10 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
             ))}
           </div>
           <div className="mt-6 text-center">
-            <Button onClick={handleSubmitAssessment} disabled={!allQuestionsAnsweredCorrectly}>
+            <Button
+              onClick={handleSubmitAssessment}
+              disabled={!allQuestionsAnsweredCorrectly || isSubmittingAssessment}
+            >
               End Assessment
             </Button>
           </div>

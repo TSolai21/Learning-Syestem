@@ -50,7 +50,7 @@ export function Header() {
   const navItems = [
     { path: "/dashboard", label: "Home", icon: <Home size={18} /> },
     { path: "/dashboard/courses", label: "Courses", icon: <BookOpen size={18} /> },
-    { path: "/dashboard/ebooks", label: "E-books", icon: <BookOpen size={18} /> },
+    // { path: "/dashboard/ebooks", label: "E-books", icon: <BookOpen size={18} /> },
     { path: "/dashboard/jobs", label: "Jobs", icon: <Briefcase size={18} /> },
   ]
 
