@@ -1128,9 +1128,9 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Certificate ID */}
-                <div className="text-center mt-8">
+                {/* <div className="text-center mt-8">
                   <p className="text-sm text-gray-500">Certificate ID: {selectedCertificate.certificate_id}</p>
-                </div>
+                </div> */}
               </div>
             </div>
           )}
