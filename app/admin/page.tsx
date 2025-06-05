@@ -29,6 +29,42 @@ interface Course {
   course_profile_image: string
 }
 
+interface User {
+  user_id: number
+  username: string
+}
+
+interface QCUserCourse {
+  user_id: number
+  courses: { course_id: number; validity_days: number }[]
+}
+
+// Add interface for API response
+interface QCAnalyticsResponse {
+  status: string;
+  data: {
+    total_batches: number;
+    batches: Array<{
+      qc_id: number;
+      batch_name: string;
+      users: Array<{
+        user_id: number;  // Add user_id field
+        username: string;
+        initial_assessment: string;
+        courses: Array<{
+          course_id: number;
+          course_name: string;
+          enrollment_status: string;
+          completion_status: string;
+          certificate_id: string | null;
+          validity: number;
+          updated_date: string;
+        }>;
+      }>;
+    }>;
+  };
+}
+
 export default function AdminPage() {
   const [numUsers, setNumUsers] = useState<number>(0)
   const [generatedKeys, setGeneratedKeys] = useState<string[]>([])
@@ -80,7 +116,7 @@ export default function AdminPage() {
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   // Tree view state for expanded nodes
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set(['qc-batch-all-qc-batches'])); // Expand QC root by default
 
   // New states for batch actions
   const [isAddUsersDialogOpen, setIsAddUsersDialogOpen] = useState(false);
@@ -93,6 +129,29 @@ export default function AdminPage() {
 
   // State to hold courses specific to the currently selected batch for validity extension
   const [batchCourses, setBatchCourses] = useState<Course[]>([]);
+
+  // QC Batch states
+  const [isQCBatchDialogOpen, setIsQCBatchDialogOpen] = useState(false)
+  const [qcBatchName, setQCBatchName] = useState("")
+  const [users, setUsers] = useState<User[]>([])
+  const [usersLoading, setUsersLoading] = useState(true)
+  const [usersError, setUsersError] = useState<string | null>(null)
+  const [qcUserCourses, setQCUserCourses] = useState<QCUserCourse[]>([])
+
+  // QC Analytics states
+  const [qcBatchesData, setQCBatchesData] = useState<any[]>([]);
+  const [qcAnalyticsLoading, setQCAnalyticsLoading] = useState(true);
+  const [qcAnalyticsError, setQCAnalyticsError] = useState<string | null>(null);
+
+  // New states for QC batch user actions
+  const [isAddQCCourseDialogOpen, setIsAddQCCourseDialogOpen] = useState(false);
+  const [isExtendQCCourseValidityDialogOpen, setIsExtendQCCourseValidityDialogOpen] = useState(false);
+  const [currentQCBatch, setCurrentQCBatch] = useState<any>(null); // Store current QC batch for dialogs
+  const [currentQCUser, setCurrentQCUser] = useState<any>(null); // Store current QC user for dialogs
+  const [selectedCourseToAddQC, setSelectedCourseToAddQC] = useState<number | null>(null);
+  const [validityDaysAddQCCourse, setValidityDaysAddQCCourse] = useState<string>("30");
+  const [selectedCourseToExtendQC, setSelectedCourseToExtendQC] = useState<number | null>(null);
+  const [extendValidityDaysQC, setExtendValidityDaysQC] = useState<string>("30");
 
   const router = useRouter();
 
@@ -299,7 +358,15 @@ export default function AdminPage() {
           setTotalUsers(data.total_users || 0); // Use || 0 for safety
           setTotalBatches(data.total_batches || 0); // Use || 0 for safety
           setTotalCoursesAnalytics(data.total_courses || 0); // Use || 0 for safety
-          setBatchesData(data.batches || []); // Use || [] for safety
+          
+          // Wrap the batches in a root 'All Batches' node
+          const allBatchesNode = {
+            batch_id: 'all-batches',
+            batch_name: 'All Batches',
+            is_root: true,
+            children: data.batches || []
+          };
+          setBatchesData([allBatchesNode]); // Set as array with single root node
         } else {
           // Handle unexpected response structure
           console.error("Batch Analytics API returned unexpected data structure:", response.data);
@@ -327,6 +394,94 @@ export default function AdminPage() {
      fetchAnalytics();
 
   }, []); // Depend on [] to fetch once on mount, or add a state variable tied to tab change if needed
+
+  // Add retry utility function
+  const retry = async (fn: () => Promise<any>, retries = 3, delay = 1000) => {
+    try {
+      return await fn();
+    } catch (error: any) {
+      if (retries === 0) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return retry(fn, retries - 1, delay * 2);
+    }
+  };
+
+  // Modify the QC Analytics fetch effect
+  useEffect(() => {
+    const fetchQCAnalytics = async () => {
+      try {
+        setQCAnalyticsLoading(true);
+        setQCAnalyticsError(null);
+        
+        // Add retry logic to the request
+        const response = await retry(async () => {
+          try {
+            return await api.get<QCAnalyticsResponse>("/qc-batch/detailed-analytics");
+          } catch (error: any) {
+            // If it's a 500 error, we'll retry
+            if (error.response?.status === 500) {
+              console.warn("Received 500 error, retrying...");
+              throw error; // This will trigger the retry
+            }
+            throw error; // Other errors will be handled normally
+          }
+        });
+
+        // The response data should already be parsed by axios
+        const responseData = response.data;
+        console.log("QC Batch Analytics API Response:", responseData);
+
+        if (responseData && responseData.status === "success" && responseData.data && responseData.data.data) {
+          const qcBatches = responseData.data.data.batches; // Corrected data access
+          // Wrap QC batches in a root 'All QC Batches' node
+          const allQCBatchesNode = {
+            qc_id: 'all-qc-batches',
+            batch_name: 'All QC Batches',
+            is_root: true,
+            children: qcBatches
+          };
+          setQCBatchesData([allQCBatchesNode]);
+        } else {
+          console.error("QC Batch Analytics API returned unexpected data structure:", responseData);
+          setQCAnalyticsError("Received unexpected data from the server.");
+          setQCBatchesData([]);
+        }
+      } catch (error: any) {
+        console.error("Error fetching QC analytics:", error);
+        
+        // Handle different types of errors with more specific messages
+        if (error._isAxiosError) {
+          if (error.response) {
+            // Server responded with error status
+            if (error.response.status === 500) {
+              setQCAnalyticsError("Server is temporarily unavailable. Please try again later.");
+            } else {
+              const errorMessage = error.response.data?.message || error.response.data?.error || 'Unknown server error';
+              setQCAnalyticsError(`Server error (${error.response.status}): ${errorMessage}`);
+            }
+          } else if (error.request) {
+            // No response received
+            setQCAnalyticsError(`No response received from server (${error.request.method} ${error.request.url}). Please check your connection.`);
+          } else {
+            // Other Axios errors
+            setQCAnalyticsError(`API Error: ${error.message}`);
+          }
+        } else if (error.message === 'Request timeout') {
+          // Request timeout
+          setQCAnalyticsError("Request timed out. Please try again.");
+        } else {
+          // Other errors
+          setQCAnalyticsError(`Failed to fetch QC analytics: ${error.message || 'Unknown error'}`);
+        }
+        
+        setQCBatchesData([]);
+      } finally {
+        setQCAnalyticsLoading(false);
+      }
+    };
+
+    fetchQCAnalytics();
+  }, []); // Fetch once on mount
 
   // Helper to reload courses
   const reloadCourses = async () => {
@@ -446,6 +601,258 @@ export default function AdminPage() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch users on mount
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setUsersLoading(true)
+        setUsersError(null)
+        const response = await api.get("/admin/users")
+        setUsers(response.data.data || [])
+      } catch (error: any) {
+        setUsersError("Failed to fetch users")
+        setUsers([])
+      } finally {
+        setUsersLoading(false)
+      }
+    }
+    fetchUsers()
+  }, [])
+
+  // Function to add new user-course pair
+  const handleAddQCUserCourse = () => {
+    setQCUserCourses([...qcUserCourses, { user_id: 0, courses: [] }])
+  }
+
+  // Function to remove user-course pair
+  const handleRemoveQCUserCourse = (index: number) => {
+    setQCUserCourses(qcUserCourses.filter((_, i) => i !== index))
+  }
+
+  // Function to update user id
+  const handleUpdateQCUser = (index: number, user_id: number) => {
+    const updated = [...qcUserCourses]
+    updated[index] = { ...updated[index], user_id }
+    setQCUserCourses(updated)
+  }
+
+  // Function to update courses for a user (add/remove course)
+  const handleToggleCourseForUser = (userIndex: number, course_id: number, checked: boolean) => {
+    const updated = [...qcUserCourses]
+    const userCourses = updated[userIndex].courses || []
+    if (checked) {
+      // Add course with default validity (e.g., 1 day)
+      updated[userIndex].courses = [...userCourses, { course_id, validity_days: 1 }]
+    } else {
+      // Remove course
+      updated[userIndex].courses = userCourses.filter(c => c.course_id !== course_id)
+    }
+    setQCUserCourses(updated)
+  }
+
+  // Function to update validity for a course
+  const handleUpdateCourseValidity = (userIndex: number, course_id: number, validity_days: number) => {
+    const updated = [...qcUserCourses]
+    updated[userIndex].courses = updated[userIndex].courses.map(c =>
+      c.course_id === course_id ? { ...c, validity_days } : c
+    )
+    setQCUserCourses(updated)
+  }
+
+  // Function to handle QC batch creation
+  const handleCreateQCBatch = async () => {
+    if (!qcBatchName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a batch name",
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (qcUserCourses.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please add at least one user-course pair",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // Check if all users and courses are selected and validity is set
+    const isValid = qcUserCourses.every(pair =>
+      pair.user_id !== 0 &&
+      pair.courses.length > 0 &&
+      pair.courses.every(c => c.validity_days > 0)
+    )
+    if (!isValid) {
+      toast({
+        title: "Error",
+        description: "Please select both user and courses (with validity) for all entries",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await api.post('/qc-batch/create', {
+        batch_name: qcBatchName,
+        user_courses: qcUserCourses
+      });
+
+      if (response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: `QC Batch '${response.data.data.batch_name}' created successfully.`, // Use batch name from response
+        });
+        // Reset form and close dialog on success
+        setIsQCBatchDialogOpen(false);
+        setQCBatchName("");
+        setQCUserCourses([]);
+        // Optionally, refresh analytics or batch list here if needed
+        // fetchAnalytics(); // Uncomment if you have this function available outside useEffect
+      } else if (response.data.errors && response.data.errors.length > 0) {
+        // Handle specific errors returned in the response data
+        const errorMessages = response.data.errors.map((err: any) => err.message || err.error || JSON.stringify(err)).join(', ');
+        toast({
+          title: "Error",
+          description: `Failed to create QC Batch: ${errorMessages}`,
+          variant: "destructive",
+        });
+      } else {
+         // Handle unexpected success response structure or generic API error message
+        console.error('API Error creating QC batch:', response.data);
+        toast({
+          title: "Error",
+          description: response.data.message || "Failed to create QC Batch with an unexpected response.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error creating QC batch:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create QC Batch. Please try again." + (error.message ? ` (${error.message})` : ''),
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Add QC Batch handlers
+  const handleAddQCCourse = async () => {
+    if (!currentQCUser || !selectedCourseToAddQC || parseInt(validityDaysAddQCCourse, 10) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please select a user, course, and enter valid days.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await api.post('/qc-batch/add-course', {
+        user_id: currentQCUser.user_id,
+        course_id: selectedCourseToAddQC,
+        validity_days: parseInt(validityDaysAddQCCourse, 10)
+      });
+
+      if (response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+        // Refresh QC analytics data
+        const qcResponse = await api.get("/qc-batch/detailed-analytics");
+        if (qcResponse.data && qcResponse.data.data && Array.isArray(qcResponse.data.data.batches)) {
+          const qcBatches = qcResponse.data.data.batches;
+          const allQCBatchesNode = {
+            qc_id: 'all-qc-batches',
+            batch_name: 'All QC Batches',
+            is_root: true,
+            children: qcBatches
+          };
+          setQCBatchesData([allQCBatchesNode]);
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: response.data.message || "Failed to add course.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error adding QC course:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add course. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsAddQCCourseDialogOpen(false);
+    }
+  };
+
+  const handleExtendQCCourseValidity = async () => {
+    if (!currentQCUser || !selectedCourseToExtendQC || parseInt(extendValidityDaysQC, 10) <= 0) {
+      toast({
+        title: "Error",
+        description: "Please select a user, course, and enter valid days.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await api.post('/qc-batch/extend-validity', {
+        user_id: currentQCUser.user_id,
+        course_id: selectedCourseToExtendQC,
+        validity_days: parseInt(extendValidityDaysQC, 10)
+      });
+
+      if (response.data.status === "success") {
+        toast({
+          title: "Success",
+          description: response.data.message,
+        });
+        // Refresh QC analytics data
+        const qcResponse = await api.get("/qc-batch/detailed-analytics");
+        if (qcResponse.data && qcResponse.data.data && Array.isArray(qcResponse.data.data.batches)) {
+          const qcBatches = qcResponse.data.data.batches;
+          const allQCBatchesNode = {
+            qc_id: 'all-qc-batches',
+            batch_name: 'All QC Batches',
+            is_root: true,
+            children: qcBatches
+          };
+          setQCBatchesData([allQCBatchesNode]);
+        }
+      } else {
+        toast({
+          title: "Error",
+          description: response.data.message || "Failed to extend validity.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error extending QC course validity:', error);
+      toast({
+        title: "Error",
+        description: "Failed to extend validity. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+      setIsExtendQCCourseValidityDialogOpen(false);
     }
   };
 
@@ -648,6 +1055,141 @@ export default function AdminPage() {
                 </DialogContent>
               </Dialog>
 
+              {/* Create New QC Batch Dialog */}
+              <Dialog open={isQCBatchDialogOpen} onOpenChange={setIsQCBatchDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="ml-2">Create New QC Batch</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Create New QC Batch</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="qcBatchName" className="text-right">
+                        QC Batch Name
+                      </Label>
+                      <Input
+                        id="qcBatchName"
+                        value={qcBatchName}
+                        onChange={(e) => setQCBatchName(e.target.value)}
+                        className="col-span-3"
+                        placeholder="Enter QC batch name"
+                      />
+                    </div>
+
+                    <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                      {qcUserCourses.map((pair, index) => (
+                        <div key={index} className="flex items-start gap-4 p-4 border rounded-lg bg-white">
+                          <div className="flex-1 space-y-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label className="text-right">User</Label>
+                              <Select
+                                value={pair.user_id.toString()}
+                                onValueChange={(value) => handleUpdateQCUser(index, parseInt(value))}
+                              >
+                                <SelectTrigger className="col-span-3">
+                                  <SelectValue placeholder="Select user" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {users.map((user) => (
+                                    <SelectItem key={user.user_id} value={user.user_id.toString()}>
+                                      {user.username}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="grid grid-cols-4 items-start gap-4">
+                              <Label className="text-right pt-2">Courses</Label>
+                              <div className="col-span-3 max-h-40 overflow-y-auto space-y-2">
+                                {courses.map(course => {
+                                  const selected = pair.courses.find(c => c.course_id === course.course_id)
+                                  return (
+                                    <div key={course.course_id} className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id={`qc-course-${index}-${course.course_id}`}
+                                        checked={!!selected}
+                                        onCheckedChange={(checked: boolean | string) => handleToggleCourseForUser(index, course.course_id, !!checked)}
+                                      />
+                                      <label
+                                        htmlFor={`qc-course-${index}-${course.course_id}`}
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                      >
+                                        {course.course_name}
+                                      </label>
+                                      {selected && (
+                                        <Input
+                                          type="number"
+                                          min={1}
+                                          value={selected.validity_days}
+                                          onChange={e => handleUpdateCourseValidity(index, course.course_id, parseInt(e.target.value) || 1)}
+                                          className="w-24 ml-2"
+                                          placeholder="Validity (days)"
+                                        />
+                                      )}
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleRemoveQCUserCourse(index)}
+                            className="mt-2"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4"
+                            >
+                              <path d="M18 6 6 18" />
+                              <path d="m6 6 12 12" />
+                            </svg>
+                          </Button>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        onClick={handleAddQCUserCourse}
+                        className="w-full"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-4 w-4 mr-2"
+                        >
+                          <path d="M12 5v14" />
+                          <path d="M5 12h14" />
+                        </svg>
+                        Add User-Course Pair
+                      </Button>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={handleCreateQCBatch}>
+                      Create QC Batch
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               {/* Generated Keys Section */}
               {generatedKeys.length > 0 && (
                 <div className="mt-6">
@@ -709,15 +1251,15 @@ export default function AdminPage() {
                   ) : (
                     <div className="space-y-4 text-gray-700">
                       {batchesData.map((batch) => (
-                        <div key={batch.batch_id} className="border rounded-md p-4 bg-gray-50">
-                          <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`batch-${batch.batch_id}`)}>
+                    <div key={batch.batch_id} className={`border rounded-md p-4 ${batch.is_root ? 'bg-gray-100' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`batch-${batch.batch_id}`)}>
                              <span>
                                {expandedNodes.has(`batch-${batch.batch_id}`) ? (
                                  <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
                                ) : (
                                  <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
                                )}
-                                Batch: {batch.batch_name} ({batch.users.length} Users, {batch.users[0]?.courses?.length || 0} Courses per user)
+                                {batch.is_root ? '▼ ' : ''}{batch.batch_name} {!batch.is_root && `(${batch.users.length} Users, ${batch.users[0]?.courses?.length || 0} Courses per user)`}
                              </span>
                              {/* Action Buttons for Batch */}
                              <div className="flex items-center gap-2">
@@ -775,9 +1317,6 @@ export default function AdminPage() {
                                     // Filter the main courses list based on unique batch course IDs
                                     const filteredBatchCourses = courses.filter(course => uniqueCourseIds.has(course.course_id));
                                     setBatchCourses(filteredBatchCourses);
-                                    console.log("Unique Course IDs from Batch:", uniqueCourseIds);
-                                    console.log("All available courses:", courses);
-                                    console.log("Filtered Batch Courses for Select:", filteredBatchCourses);
                                   }}
                                 >
                                   Extend Validity
@@ -785,8 +1324,107 @@ export default function AdminPage() {
                              </div>
                           </div>
                           {expandedNodes.has(`batch-${batch.batch_id}`) && ( // Batch content
-                            <div className="ml-6 mt-4 space-y-4 border-l pl-4">
-                              {batch.users.map((user: any) => (
+                            <div className={`mt-4 space-y-4 ${!batch.is_root ? 'ml-6 border-l pl-4' : ''}`}>
+                              {batch.is_root && batch.children && batch.children.map((childBatch: any) => (
+                                <div key={childBatch.batch_id} className="border rounded-md p-4 bg-gray-50">
+                                  <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`batch-${childBatch.batch_id}`)}>
+                                    <span>
+                                      {expandedNodes.has(`batch-${childBatch.batch_id}`) ? (
+                                        <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                                      ) : (
+                                        <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                                      )}
+                                      Batch: {childBatch.batch_name} ({childBatch.users.length} Users, {childBatch.users[0]?.courses?.length || 0} Courses per user)
+                                    </span>
+                                    {/* Action Buttons for Batch */}
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCurrentBatch(childBatch);
+                                          setIsAddUsersDialogOpen(true);
+                                          setNumUsersToAdd("1");
+                                          setGeneratedBatchKeys([]);
+                                          const uniqueCourseIds = new Set<number>();
+                                          childBatch.users.forEach((user: any) => {
+                                            if (user.courses && Array.isArray(user.courses)) {
+                                              user.courses.forEach((course: any) => {
+                                                if (course && course.course_id !== undefined && course.course_id !== null) {
+                                                  uniqueCourseIds.add(course.course_id);
+                                                }
+                                              });
+                                            }
+                                          });
+                                          const filteredBatchCourses = courses.filter(course => uniqueCourseIds.has(course.course_id));
+                                          setBatchCourses(filteredBatchCourses);
+                                        }}
+                                      >
+                                        Add Users
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCurrentBatch(childBatch);
+                                          setIsExtendValidityDialogOpen(true);
+                                          setExtendValidityDays("30");
+                                          setSelectedCourseForValidity(null);
+                                          const uniqueCourseIds = new Set<number>();
+                                          childBatch.users.forEach((user: any) => {
+                                            if (user.courses && Array.isArray(user.courses)) {
+                                              user.courses.forEach((course: any) => {
+                                                if (course && course.course_id !== undefined && course.course_id !== null) {
+                                                  uniqueCourseIds.add(course.course_id);
+                                                }
+                                              });
+                                            }
+                                          });
+                                          const filteredBatchCourses = courses.filter(course => uniqueCourseIds.has(course.course_id));
+                                          setBatchCourses(filteredBatchCourses);
+                                        }}
+                                      >
+                                        Extend Validity
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {expandedNodes.has(`batch-${childBatch.batch_id}`) && (
+                                    <div className="ml-6 mt-4 space-y-4 border-l pl-4">
+                                      {childBatch.users.map((user: any) => (
+                                        <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
+                                          <button onClick={() => toggleNode(`user-${childBatch.batch_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
+                                            <span>
+                                              {expandedNodes.has(`user-${childBatch.batch_id}-${user.username}`) ? (
+                                                <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                              ) : (
+                                                <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                              )}
+                                              User: {user.username} ({user.courses.length} Courses)
+                                            </span>
+                                          </button>
+                                          {expandedNodes.has(`user-${childBatch.batch_id}-${user.username}`) && (
+                                            <div className="ml-6 mt-3 space-y-2 border-l pl-4 text-gray-600">
+                                              {user.courses.map((course: any) => (
+                                                <div key={course.course_name} className="border-b last:border-b-0 pb-3 text-sm space-y-1">
+                                                  <div className="font-medium">Course: {course.course_name}</div>
+                                                  <div>Enrollment Status: <span className="font-normal">{course.enrollment_status}</span></div>
+                                                  <div>Completion Status: <span className="font-normal">{course.completion_status}</span></div>
+                                                  {course.validity !== undefined && course.updated_date && (
+                                                    <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
+                                                  )}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                              {!batch.is_root && batch.users.map((user: any) => (
                                  <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
                                     <button onClick={() => toggleNode(`user-${batch.batch_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
                                       <span>
@@ -1144,6 +1782,224 @@ export default function AdminPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* QC Batch Analytics Tree View */}
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold mb-4">QC Batch Analytics</h3>
+        {qcAnalyticsLoading ? (
+          // Skeleton loader for QC tree view
+          <div className="space-y-4">
+            {[...Array(3)].map((_, batchIndex) => (
+              <div key={batchIndex} className="border rounded-md p-4 space-y-2">
+                <div className="flex items-center justify-between w-full">
+                  <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                </div>
+                <div className="ml-4 mt-2 space-y-2">
+                  {[...Array(2)].map((_, userIndex) => (
+                    <div key={userIndex} className="border-t pt-2 space-y-2">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                      </div>
+                      <div className="ml-4 mt-2 space-y-2">
+                        {[...Array(1)].map((_, courseIndex) => (
+                          <div key={courseIndex} className="border-t pt-2">
+                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/3 mt-1"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/4 mt-1"></div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : qcAnalyticsError ? (
+          <div className="text-red-500">{qcAnalyticsError}</div>
+        ) : (
+          qcBatchesData.length === 0 ? (
+            <div className="text-gray-500">No QC batch data available.</div>
+          ) : (
+            <div className="space-y-4 text-gray-700">
+              {qcBatchesData.map((batch) => (
+                <div key={batch.qc_id} className={`border rounded-md p-4 ${batch.is_root ? 'bg-gray-100' : 'bg-gray-50'}`}>
+                  <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${batch.qc_id}`)}>
+                    <span>
+                      {expandedNodes.has(`qc-batch-${batch.qc_id}`) ? (
+                        <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                      )}
+                      {batch.is_root ? '▼ ' : ''}{batch.batch_name} {!batch.is_root && `(${batch.users.length} Users)`}
+                    </span>
+                  </div>
+                  {expandedNodes.has(`qc-batch-${batch.qc_id}`) && (
+                    <div className={`mt-4 space-y-4 ${!batch.is_root ? 'ml-6 border-l pl-4' : ''}`}>
+                      {batch.is_root && batch.children && batch.children.map((childBatch: any) => (
+                        <div key={childBatch.qc_id} className="border rounded-md p-4 bg-gray-50">
+                          <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${childBatch.qc_id}`)}>
+                            <span>
+                              {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) ? (
+                                <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                              )}
+                              Batch: {childBatch.batch_name} ({childBatch.users.length} Users)
+                            </span>
+                          </div>
+                          {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) && (
+                            <div className="ml-6 mt-4 space-y-4 border-l pl-4">
+                              {childBatch.users.map((user: any) => (
+                                <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <button onClick={() => toggleNode(`qc-user-${childBatch.qc_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
+                                      <span>
+                                        {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) ? (
+                                          <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        ) : (
+                                          <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        )}
+                                        User: {user.username} ({user.courses.length} Courses)
+                                      </span>
+                                    </button>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCurrentQCUser(user);
+                                          setCurrentQCBatch(childBatch);
+                                          setIsAddQCCourseDialogOpen(true);
+                                          setSelectedCourseToAddQC(null);
+                                          setValidityDaysAddQCCourse("30");
+                                        }}
+                                      >
+                                        Add Course
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) && (
+                                    <div className="ml-6 mt-3 space-y-2 border-l pl-4 text-gray-600">
+                                      {user.courses.map((course: any) => (
+                                        <div key={course.course_name} className="border-b last:border-b-0 pb-3 text-sm space-y-1">
+                                          <div className="flex items-center justify-between">
+                                            <div className="font-medium">Course: {course.course_name}</div>
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => {
+                                                setCurrentQCUser(user);
+                                                setCurrentQCBatch(childBatch);
+                                                setSelectedCourseToExtendQC(course.course_id);
+                                                setIsExtendQCCourseValidityDialogOpen(true);
+                                                setExtendValidityDaysQC("30");
+                                              }}
+                                            >
+                                              Extend Validity
+                                            </Button>
+                                          </div>
+                                          <div>Enrollment Status: <span className="font-normal">{course.enrollment_status}</span></div>
+                                          <div>Completion Status: <span className="font-normal">{course.completion_status}</span></div>
+                                          {course.validity !== undefined && course.updated_date && (
+                                            <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+
+      {/* Add QC Course Dialog */}
+      <Dialog open={isAddQCCourseDialogOpen} onOpenChange={setIsAddQCCourseDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Course for User: {currentQCUser?.username}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="selectCourseToAddQC" className="text-right">
+                Select Course
+              </Label>
+              <Select value={selectedCourseToAddQC?.toString() || ""} onValueChange={(value) => setSelectedCourseToAddQC(parseInt(value, 10))}>
+                <SelectTrigger id="selectCourseToAddQC" className="col-span-3">
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.map((course) => (
+                    <SelectItem key={course.course_id} value={course.course_id.toString()}>
+                      {course.course_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="validityDaysAddQCCourse" className="text-right">
+                Validity (Days)
+              </Label>
+              <Input
+                id="validityDaysAddQCCourse"
+                type="number"
+                value={validityDaysAddQCCourse}
+                onChange={(e) => setValidityDaysAddQCCourse(e.target.value)}
+                className="col-span-3"
+                min="1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddQCCourse} disabled={isLoading || !selectedCourseToAddQC || parseInt(validityDaysAddQCCourse, 10) <= 0}>
+              {isLoading ? "Adding..." : "Add Course"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Extend QC Course Validity Dialog */}
+      <Dialog open={isExtendQCCourseValidityDialogOpen} onOpenChange={setIsExtendQCCourseValidityDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Extend Course Validity for User: {currentQCUser?.username}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="extendValidityDaysQC" className="text-right">
+                Extend By (Days)
+              </Label>
+              <Input
+                id="extendValidityDaysQC"
+                type="number"
+                value={extendValidityDaysQC}
+                onChange={(e) => setExtendValidityDaysQC(e.target.value)}
+                className="col-span-3"
+                min="1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleExtendQCCourseValidity} disabled={isLoading || parseInt(extendValidityDaysQC, 10) <= 0}>
+              {isLoading ? "Extending..." : "Extend Validity"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
