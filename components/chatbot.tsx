@@ -7,6 +7,8 @@ import { Send, X, Maximize, Minimize, Bot, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { api } from "@/lib/api"
+import ReactMarkdown from "react-markdown"
 
 interface Message {
   role: "user" | "assistant"
@@ -50,26 +52,36 @@ export function Chatbot() {
     setMessages((prev) => [...prev, userMessage])
     setInput("")
 
-    setMessages((prev) => [...prev, { role: "assistant", content: "Thinking..." }])
+    setMessages((prev) => [...prev, { role: "assistant", content: "" }])
     setIsLoading(true)
 
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch("https://chatbot-backend-wvi9.onrender.com/query", {
+      const response = await fetch(`${api.defaults.baseURL}/ai/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          query: input,
-          file_key: "none",
-        }),
+        body: JSON.stringify({ question: input }),
       })
 
-      const data = await response.json()
+      if (!response.body) throw new Error("No response body")
 
-      setMessages((prev) => [
-        ...prev.slice(0, -1),
-        { role: "assistant", content: data.result || "I'm not sure how to respond to that." },
-      ])
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let done = false
+      let assistantContent = ""
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read()
+        done = doneReading
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true })
+          assistantContent += chunk
+          setMessages((prev) => {
+            const updated = [...prev]
+            updated[updated.length - 1] = { role: "assistant", content: assistantContent }
+            return updated
+          })
+        }
+      }
     } catch (error) {
       console.error("Error fetching AI response:", error)
       setMessages((prev) => [
@@ -160,6 +172,10 @@ export function Chatbot() {
                             style={{ animationDelay: "300ms" }}
                           ></div>
                         </div>
+                      </div>
+                    ) : m.role === "assistant" ? (
+                      <div className="prose prose-sm max-w-none">
+                        <ReactMarkdown>{m.content}</ReactMarkdown>
                       </div>
                     ) : (
                       <p className="whitespace-pre-wrap text-sm">{m.content}</p>
