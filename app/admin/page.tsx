@@ -16,6 +16,7 @@ import { BatchCourseValidityDisplay } from "@/components/batch-course-validity-d
 import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronDown, ChevronRight, CopyIcon, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
+import * as XLSX from "xlsx";
 
 interface Course {
   course_id: number
@@ -95,11 +96,17 @@ export default function AdminPage() {
   const [courseId, setCourseId] = useState<number | null>(null)
   const [enrollmentId, setEnrollmentId] = useState<number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [step3Mode, setStep3Mode] = useState<"upload" | "generate" | null>(null);
 
   // Add state for courses and loading
   const [courses, setCourses] = useState<Course[]>([])
   const [coursesLoading, setCoursesLoading] = useState(true)
   const [coursesError, setCoursesError] = useState<string | null>(null)
+
+  // Add state for pending courses (Yet to Approve)
+  const [pendingCourses, setPendingCourses] = useState<any[]>([])
+  const [pendingCoursesLoading, setPendingCoursesLoading] = useState(true)
+  const [pendingCoursesError, setPendingCoursesError] = useState<string | null>(null)
 
   // Validation state
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
@@ -153,7 +160,17 @@ export default function AdminPage() {
   const [selectedCourseToExtendQC, setSelectedCourseToExtendQC] = useState<number | null>(null);
   const [extendValidityDaysQC, setExtendValidityDaysQC] = useState<string>("30");
 
+  // Add state for streaming and parsed syllabus
+  const [streamingContent, setStreamingContent] = useState("");
+  const [parsedSyllabus, setParsedSyllabus] = useState<any>(null);
+  const [streamError, setStreamError] = useState<string | null>(null);
+
   const router = useRouter();
+
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsCourse, setDetailsCourse] = useState<any>(null);
+  const [detailsContent, setDetailsContent] = useState<any[]>([]);
 
   // Logout function
   const handleLogout = () => {
@@ -191,7 +208,9 @@ export default function AdminPage() {
       if (!courseData.course_level.trim()) errors.course_level = "Course level is required"
       if (!courseData.enrollment_type.trim()) errors.enrollment_type = "Enrollment type is required"
     } else if (step === 3) {
-      if (!selectedFile) errors.selectedFile = "Course content file is required"
+      if (step3Mode === 'upload' && !selectedFile) {
+        errors.selectedFile = "Course content file is required"
+      }
     }
     setFormErrors(errors)
     return Object.keys(errors).length === 0
@@ -240,6 +259,19 @@ export default function AdminPage() {
     }
   }
 
+  // Local storage helpers for course creation
+  const LOCAL_STORAGE_KEY = "course_creation_data";
+  function saveCourseDataToLocalStorage(data: any) {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  }
+  function getCourseDataFromLocalStorage() {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  }
+  function clearCourseDataFromLocalStorage() {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+  }
+
   const handleCourseCreation = async () => {
     // Validate current step before proceeding
     if (!validateStep(currentStep)) return
@@ -258,9 +290,10 @@ export default function AdminPage() {
           rating: courseData.rating,
           course_profile_image: courseData.course_profile_image
         })
-
         setCourseId(response.data.course_id)
         setCurrentStep(2)
+        // Save to local storage
+        saveCourseDataToLocalStorage({ ...courseData, course_id: response.data.course_id, step: 1 })
       }
 
       // Step 2: Create course enrollment
@@ -274,22 +307,21 @@ export default function AdminPage() {
           roles: courseData.roles,
           course_type: courseData.enrollment_type
         })
-
         setEnrollmentId(response.data.enrollment_id)
         setCurrentStep(3)
+        // Save to local storage
+        saveCourseDataToLocalStorage({ ...courseData, course_id: courseId, enrollment_id: response.data.enrollment_id, step: 2 })
       }
 
-      // Step 3: Upload course content
-      else if (currentStep === 3 && selectedFile) {
+      // Step 3: Upload course content (only if upload mode)
+      else if (currentStep === 3 && step3Mode === "upload" && selectedFile) {
         const formData = new FormData()
         formData.append('file', selectedFile)
-
         await api.post('/courseContent/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         })
-
         // Reset form and close dialog
         setCurrentStep(1)
         setCourseData({
@@ -312,9 +344,74 @@ export default function AdminPage() {
         setEnrollmentId(null)
         setSelectedFile(null)
         setIsDialogOpen(false)
+        clearCourseDataFromLocalStorage()
         toast({ title: "Course Created", description: "The course was created successfully.", variant: "default" })
         reloadCourses()
         return
+      }
+
+      // Step 3: Handle content generation from button click
+      else if (currentStep === 3 && step3Mode === "generate") {
+        console.log("Attempting to start content generation...");
+        console.log("Parsed Syllabus:", parsedSyllabus);
+        if (!parsedSyllabus) {
+          toast({ title: "Error", description: "Please generate a syllabus first.", variant: "destructive" });
+          setIsLoading(false);
+          return;
+        }
+
+        const saved = getCourseDataFromLocalStorage();
+        console.log("Saved course data from localStorage:", saved);
+        console.log("Current courseId:", courseId);
+        if (!saved || !courseId) {
+          toast({ title: "Error", description: "Course data or ID is missing. Please start over.", variant: "destructive" });
+          setIsLoading(false);
+          return;
+        }
+
+        try {
+          const payload = {
+            course_id: courseId,
+            course_name: saved.course_name,
+            course_data: parsedSyllabus
+          };
+          console.log("Making API call to /content-generate/detailed-content with data:", payload);
+          
+          // Start background generation
+          await api.post('/content-generate/detailed-content', payload);
+
+          console.log("API call successful.");
+
+          // Reset form and close dialog
+          setCurrentStep(1);
+          setCourseData({
+            course_name: "",
+            course_short_description: "",
+            course_type: "",
+            course_duration_hours: 0,
+            course_duration_minutes: 0,
+            language: "",
+            rating: 0,
+            course_profile_image: "",
+            course_description: "",
+            course_objective: "",
+            pre_requirments: "",
+            course_level: "",
+            roles: "",
+            enrollment_type: "free"
+          });
+          setCourseId(null);
+          setEnrollmentId(null);
+          setSelectedFile(null);
+          setParsedSyllabus(null);
+          setIsDialogOpen(false);
+          clearCourseDataFromLocalStorage();
+          toast({ title: "Success", description: "Content generation started. Track progress in the 'Yet to Approve' section.", variant: "default" });
+          reloadCourses();
+        } catch (error) {
+          console.error('Error starting content generation:', error);
+          toast({ title: "Error", description: "Failed to start content generation.", variant: "destructive" });
+        }
       }
     } catch (error) {
       console.error('Error in course creation:', error)
@@ -323,6 +420,67 @@ export default function AdminPage() {
       setIsLoading(false)
     }
   }
+
+  // Handler for generating content
+  const handleGenerateContent = async () => {
+    setIsLoading(true);
+    setStreamingContent("");
+    setParsedSyllabus(null);
+    setStreamError(null);
+
+    const saved = getCourseDataFromLocalStorage();
+    if (!saved) {
+      toast({ title: "Error", description: "No course data found in local storage.", variant: "destructive" });
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch(`${api.defaults.baseURL}/content-generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          course_name: saved.course_name,
+          content_type: saved.course_level,
+          duration_hours: saved.course_duration_hours,
+          duration_minutes: saved.course_duration_minutes,
+          preferences: saved.preferences || "",
+        }),
+      });
+      if (!response.body) throw new Error("No response body");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let buffer = "";
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          buffer += decoder.decode(value, { stream: true });
+          setStreamingContent(buffer);
+
+          // Process each line (SSE event)
+          const lines = buffer.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data:")) {
+              try {
+                const json = JSON.parse(line.replace("data:", "").trim());
+                if (json.complete) {
+                  setParsedSyllabus(json.complete);
+                }
+              } catch (e) {
+                // Ignore parse errors for partial lines
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      setStreamError("Failed to generate content.");
+      toast({ title: "Error", description: "Failed to generate content.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Fetch courses on mount and after creation
   useEffect(() => {
@@ -340,6 +498,7 @@ export default function AdminPage() {
       }
     }
     fetchCourses()
+    fetchPendingCourses() // Also fetch pending courses
   }, [])
 
   // Fetch analytics data when the tab is active
@@ -496,7 +655,40 @@ export default function AdminPage() {
     } finally {
       setCoursesLoading(false)
     }
+    // Also reload pending courses
+    fetchPendingCourses()
   }
+
+  // Helper to fetch pending courses (Yet to Approve)
+  const fetchPendingCourses = async () => {
+    try {
+      setPendingCoursesLoading(true);
+      setPendingCoursesError(null);
+      const response = await api.get("/content-generate/pending-approval");
+
+      if (response.data && response.data.data) {
+        const coursesWithProgress = response.data.data.map((course: any) => {
+          let progress = 0;
+          if (course.latest_status === 'completed') {
+            progress = 100;
+          } else if (course.latest_status && course.latest_status.startsWith('processing_')) {
+            const progressValue = parseInt(course.latest_status.split('_')[1], 10);
+            progress = isNaN(progressValue) ? 0 : progressValue;
+          }
+          return { ...course, progress };
+        });
+        setPendingCourses(coursesWithProgress);
+      } else {
+        setPendingCourses([]);
+      }
+    } catch (error: any) {
+      setPendingCoursesError("Failed to fetch pending courses");
+      setPendingCourses([]);
+      console.error("Error fetching pending courses:", error);
+    } finally {
+      setPendingCoursesLoading(false);
+    }
+  };
 
   // Function to handle downloading keys as CSV
   const handleDownloadKeys = () => {
@@ -854,6 +1046,47 @@ export default function AdminPage() {
       setIsLoading(false);
       setIsExtendQCCourseValidityDialogOpen(false);
     }
+  };
+
+  // Add state for step 3 mode and generated content
+  const [generatedContent, setGeneratedContent] = useState("");
+
+  // Prefill data from local storage on mount
+  useEffect(() => {
+    const saved = getCourseDataFromLocalStorage();
+    if (saved) {
+      setCourseData((prev) => ({ ...prev, ...saved }));
+      if (saved.course_id) setCourseId(saved.course_id);
+      if (saved.enrollment_id) setEnrollmentId(saved.enrollment_id);
+    }
+  }, []);
+
+  const [isEditingJson, setIsEditingJson] = useState(false);
+  const [jsonEditValue, setJsonEditValue] = useState("");
+  const [jsonEditError, setJsonEditError] = useState("");
+
+  const handleViewDetails = async (course: any) => {
+    setDetailsDialogOpen(true);
+    setDetailsCourse(course);
+    setDetailsLoading(true);
+    setDetailsContent([]);
+    try {
+      const response = await api.get(`/transaction-view/course-content/${course.course_id}`);
+      setDetailsContent(response.data.data || []);
+    } catch (err) {
+      setDetailsContent([]);
+      toast({ title: "Error", description: "Failed to fetch course content.", variant: "destructive" });
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleDownloadCourseContent = () => {
+    if (!detailsContent.length) return;
+    const ws = XLSX.utils.json_to_sheet(detailsContent);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "CourseContent");
+    XLSX.writeFile(wb, `course_content_${detailsCourse.course_id}.xlsx`);
   };
 
   return (
@@ -1551,6 +1784,86 @@ export default function AdminPage() {
 
             </CardContent>
           </Card>
+
+          {/* Yet to Approve Section */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Yet to Approve</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Pending Course Approvals</h3>
+                {pendingCoursesLoading ? (
+                  <div>Loading pending courses...</div>
+                ) : pendingCoursesError ? (
+                  <div className="text-red-500">{pendingCoursesError}</div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {pendingCourses.length === 0 ? (
+                      <div className="col-span-full text-center text-gray-500">No pending courses found.</div>
+                    ) : (
+                      pendingCourses.map((course) => (
+                        <Card key={course.course_id} className="border-l-4 border-l-orange-500">
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-semibold line-clamp-1">{course.course_name}</h4>
+                              {course.course_type && (
+                                <Badge variant={course.course_type.toLowerCase() === "free" ? "secondary" : undefined}>
+                                  {course.course_type.charAt(0).toUpperCase() + course.course_type.slice(1)}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2 line-clamp-3">{course.course_short_description}</p>
+                            <div className="flex justify-between text-sm text-gray-500 mb-3">
+                              <span>{course.course_duration_hours}h {course.course_duration_minutes}m</span>
+                              {course.rating && <span>⭐ {course.rating}</span>}
+                            </div>
+                            
+                            {/* Progress Bar */}
+                            <div className="mb-3">
+                              <div className="flex justify-between text-xs text-gray-600 mb-1">
+                                <span>Content Generation Progress</span>
+                                <span>{course.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    course.progress === 100 ? 'bg-green-500' : 'bg-orange-500'
+                                  }`}
+                                  style={{ width: `${course.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Status and Actions */}
+                            <div className="flex justify-between items-center">
+                              <div className="text-xs text-gray-600">
+                                {course.latest_status === "completed" ? (
+                                  <span className="text-green-600 font-medium">✓ Ready for Approval</span>
+                                ) : (
+                                  <span className="text-orange-600 font-medium">⏳ Generating Content</span>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                {course.latest_status === "completed" && (
+                                  <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+                                    Approve
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => handleViewDetails(course)}>
+                                  View Details
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="courses">
@@ -1661,31 +1974,145 @@ export default function AdminPage() {
                     )}
 
                     {currentStep === 3 && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="space-y-1 flex flex-col md:col-span-2">
-                          <Label htmlFor="course-content">Course Content (Excel File)</Label>
-                          <Input id="course-content" type="file" accept=".xlsx,.xls" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} aria-invalid={!!formErrors.selectedFile} />
-                          <div className="min-h-[18px]">{formErrors.selectedFile && <p className="text-red-500 text-xs mt-0.5">{formErrors.selectedFile}</p>}</div>
-                          <div className="text-xs text-gray-600 mt-1">
-                            <strong>Note:</strong> Your Excel file must include the columns: <code>course_id</code>, <code>course_mastertitle_breakdown_id</code>, <code>course_subtitle_id</code> in the first row.<br />
-                            <button
-                              type="button"
-                              className="mt-1 underline text-blue-600 hover:text-blue-800"
-                              onClick={() => {
-                                const header = ["course_id", "course_mastertitle_breakdown_id", "course_subtitle_id"];
-                                const csvContent = header.join(",") + "\n";
-                                const blob = new Blob([csvContent], { type: "text/csv" });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement("a");
-                                a.href = url;
-                                a.download = "course_content_template.csv";
-                                a.click();
-                                URL.revokeObjectURL(url);
-                              }}
-                            >
-                              Download Template
-                            </button>
+                      <div className="flex flex-col md:flex-row gap-6 py-4 min-h-[300px] h-[400px] max-h-[500px] overflow-hidden">
+                        {/* Left: Option selection and upload */}
+                        <div className="flex-1 min-w-[300px] overflow-auto">
+                          <div className="mb-4 flex gap-2">
+                            <Button variant={step3Mode === "upload" ? "default" : "outline"} onClick={() => setStep3Mode("upload")}>Upload Excel</Button>
+                            <Button variant={step3Mode === "generate" ? "default" : "outline"} onClick={() => setStep3Mode("generate")}>Generate Content</Button>
                           </div>
+                          {step3Mode === "upload" && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div className="space-y-1 flex flex-col md:col-span-2">
+                                <Label htmlFor="course-content">Course Content (Excel File)</Label>
+                                <Input id="course-content" type="file" accept=".xlsx,.xls" onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} aria-invalid={!!formErrors.selectedFile} />
+                                <div className="min-h-[18px]">{formErrors.selectedFile && <p className="text-red-500 text-xs mt-0.5">{formErrors.selectedFile}</p>}</div>
+                                <div className="text-xs text-gray-600 mt-1">
+                                  <strong>Note:</strong> Your Excel file must include the columns: <code>course_id</code>, <code>course_mastertitle_breakdown_id</code>, <code>course_subtitle_id</code> in the first row.<br />
+                                  <button
+                                    type="button"
+                                    className="mt-1 underline text-blue-600 hover:text-blue-800"
+                                    onClick={() => {
+                                      const header = ["course_id", "course_mastertitle_breakdown_id", "course_subtitle_id"];
+                                      const csvContent = header.join(",") + "\n";
+                                      const blob = new Blob([csvContent], { type: "text/csv" });
+                                      const url = URL.createObjectURL(blob);
+                                      const a = document.createElement("a");
+                                      a.href = url;
+                                      a.download = "course_content_template.csv";
+                                      a.click();
+                                      URL.revokeObjectURL(url);
+                                    }}
+                                  >
+                                    Download Template
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          {step3Mode === "generate" && (
+                            <div>
+                              <Button onClick={handleGenerateContent} disabled={isLoading}>
+                                {isLoading ? "Generating..." : "Generate Syllabus"}
+                              </Button>
+                              {streamError && <div className="text-red-500 mt-2">{streamError}</div>}
+                            </div>
+                          )}
+                        </div>
+                        {/* Right: Syllabus Preview */}
+                        <div className="flex-1 bg-muted/50 rounded-lg border shadow-sm p-6 overflow-auto min-w-[300px] max-h-[540px]">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="font-semibold text-lg text-primary">Generated Syllabus Preview</h4>
+                            {parsedSyllabus && !isEditingJson && (
+                              <button
+                                className="ml-2 p-2 rounded-full hover:bg-orange-100 text-primary hover:text-orange-600 transition-colors"
+                                title="Edit JSON"
+                                onClick={() => {
+                                  setIsEditingJson(true);
+                                  setJsonEditValue(JSON.stringify(parsedSyllabus, null, 2));
+                                  setJsonEditError("");
+                                }}
+                              >
+                                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path d="M12 20h9" />
+                                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19.5 3 21l1.5-4L16.5 3.5z" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                          {isEditingJson ? (
+                            <div>
+                              <textarea
+                                className="w-full h-64 p-2 font-mono text-xs border rounded resize-none focus:ring-2 focus:ring-orange-400"
+                                value={jsonEditValue}
+                                onChange={e => setJsonEditValue(e.target.value)}
+                                spellCheck={false}
+                                autoFocus
+                              />
+                              {jsonEditError && <div className="text-red-500 text-xs mt-2">{jsonEditError}</div>}
+                              <div className="flex gap-2 mt-2 justify-end">
+                                <Button
+                                  onClick={() => {
+                                    try {
+                                      const parsed = JSON.parse(jsonEditValue);
+                                      // Validate structure
+                                      if (
+                                        !parsed.course_mastertitle_breakdown ||
+                                        !Array.isArray(parsed.course_mastertitle_breakdown) ||
+                                        !parsed.course_mastertitle_breakdown.every(
+                                          (m: any) =>
+                                            typeof m.master_title === "string" &&
+                                            Array.isArray(m.subtitles) &&
+                                            m.subtitles.every((s: any) => typeof s === "string")
+                                        )
+                                      ) {
+                                        setJsonEditError("Invalid structure: Must have course_mastertitle_breakdown as an array of { master_title, subtitles[] }.");
+                                        return;
+                                      }
+                                      setParsedSyllabus(parsed);
+                                      setIsEditingJson(false);
+                                      setJsonEditError("");
+                                    } catch (e: any) {
+                                      setJsonEditError("Invalid JSON: " + e.message);
+                                    }
+                                  }}
+                                  className="bg-primary text-white hover:bg-orange-600"
+                                >
+                                  Save
+                                </Button>
+                                <Button variant="outline" onClick={() => setIsEditingJson(false)}>
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              {isLoading && (
+                                <div className="animate-pulse text-muted-foreground">Generating syllabus...</div>
+                              )}
+                              {!isLoading && !parsedSyllabus && (
+                                <div className="text-muted-foreground text-sm">No syllabus generated yet.</div>
+                              )}
+                              {parsedSyllabus && parsedSyllabus.course_mastertitle_breakdown && (
+                                <div className="space-y-6">
+                                  {/* Syllabus Structure */}
+                                  <div className="space-y-4">
+                                    <h5 className="font-semibold text-gray-800">Syllabus Structure</h5>
+                                    {parsedSyllabus.course_mastertitle_breakdown.map((module: any, idx: number) => (
+                                      <div key={idx} className="bg-white rounded-lg shadow p-4 border">
+                                        <h5 className="font-semibold text-md mb-2 text-primary">{module.master_title}</h5>
+                                        <ul className="list-disc pl-6 space-y-1">
+                                          {module.subtitles.map((subtitle: string, subIdx: number) => (
+                                            <li key={subIdx} className="text-sm text-muted-foreground">{subtitle}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
                       </div>
                     )}
@@ -1697,7 +2124,9 @@ export default function AdminPage() {
                         </Button>
                       )}
                       <Button onClick={handleCourseCreation} disabled={isLoading} size="sm" className={currentStep === 1 ? "ml-auto" : ""}>
-                        {isLoading ? "Processing..." : currentStep === 3 ? "Create Course" : "Next"}
+                        {isLoading ? "Processing..." : 
+                         currentStep === 3 && step3Mode === "generate" ? "Create Course & Start Generation" :
+                         currentStep === 3 ? "Create Course" : "Next"}
                       </Button>
                     </div>
                   </div>
@@ -1759,6 +2188,86 @@ export default function AdminPage() {
                             <div className="flex justify-between text-sm text-gray-500">
                               <span>{course.course_duration_hours}h {course.course_duration_minutes}m</span>
                               <span>⭐ {course.rating}</span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Yet to Approve Section */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Yet to Approve</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Pending Course Approvals</h3>
+                {pendingCoursesLoading ? (
+                  <div>Loading pending courses...</div>
+                ) : pendingCoursesError ? (
+                  <div className="text-red-500">{pendingCoursesError}</div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {pendingCourses.length === 0 ? (
+                      <div className="col-span-full text-center text-gray-500">No pending courses found.</div>
+                    ) : (
+                      pendingCourses.map((course) => (
+                        <Card key={course.course_id} className="border-l-4 border-l-orange-500">
+                          <CardContent className="p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-semibold line-clamp-1">{course.course_name}</h4>
+                              {course.course_type && (
+                                <Badge variant={course.course_type.toLowerCase() === "free" ? "secondary" : undefined}>
+                                  {course.course_type.charAt(0).toUpperCase() + course.course_type.slice(1)}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500 mb-2 line-clamp-3">{course.course_short_description}</p>
+                            <div className="flex justify-between text-sm text-gray-500 mb-3">
+                              <span>{course.course_duration_hours}h {course.course_duration_minutes}m</span>
+                              {course.rating && <span>⭐ {course.rating}</span>}
+                            </div>
+                            
+                            {/* Progress Bar */}
+                            <div className="mb-3">
+                              <div className="flex justify-between text-xs text-gray-600 mb-1">
+                                <span>Content Generation Progress</span>
+                                <span>{course.progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    course.progress === 100 ? 'bg-green-500' : 'bg-orange-500'
+                                  }`}
+                                  style={{ width: `${course.progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Status and Actions */}
+                            <div className="flex justify-between items-center">
+                              <div className="text-xs text-gray-600">
+                                {course.latest_status === "completed" ? (
+                                  <span className="text-green-600 font-medium">✓ Ready for Approval</span>
+                                ) : (
+                                  <span className="text-orange-600 font-medium">⏳ Generating Content</span>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                {course.latest_status === "completed" && (
+                                  <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+                                    Approve
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => handleViewDetails(course)}>
+                                  View Details
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -1998,6 +2507,55 @@ export default function AdminPage() {
               {isLoading ? "Extending..." : "Extend Validity"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Course Details: {detailsCourse?.course_name}</DialogTitle>
+          </DialogHeader>
+          {detailsLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <div><b>Course Name:</b> {detailsCourse?.course_name}</div>
+                <div><b>Description:</b> {detailsCourse?.course_short_description}</div>
+                <div><b>Duration:</b> {detailsCourse?.course_duration_hours}h {detailsCourse?.course_duration_minutes}m</div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleDownloadCourseContent}>Download Course Content</Button>
+                <Button disabled>Download Questions</Button>
+                <Button disabled>Approve</Button>
+              </div>
+              <div className="mt-4 max-h-60 overflow-auto">
+                <b>Preview:</b>
+                {detailsContent.length === 0 ? (
+                  <div className="text-gray-500">No content found.</div>
+                ) : (
+                  <table className="min-w-full text-xs border mt-2">
+                    <thead>
+                      <tr>
+                        <th className="border px-2">Master Title</th>
+                        <th className="border px-2">Subtitle</th>
+                        <th className="border px-2">Content</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailsContent.map((row, idx) => (
+                        <tr key={idx}>
+                          <td className="border px-2">{row.course_mastertitle_breakdown}</td>
+                          <td className="border px-2">{row.course_subtitle}</td>
+                          <td className="border px-2">{row.subtitle_content?.slice(0, 60)}...</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
