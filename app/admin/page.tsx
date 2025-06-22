@@ -1089,6 +1089,44 @@ export default function AdminPage() {
     XLSX.writeFile(wb, `course_content_${detailsCourse.course_id}.xlsx`);
   };
 
+  // Download Questions as Excel
+  const handleDownloadQuestions = async () => {
+    if (!detailsCourse?.course_id) return;
+    setDetailsLoading(true);
+    try {
+      const response = await api.get(`/transaction-view/questions/${detailsCourse.course_id}`);
+      const questions = response.data.data || [];
+      if (!questions.length) {
+        toast({ title: "No Questions", description: "No questions found for this course.", variant: "destructive" });
+        return;
+      }
+      const ws = XLSX.utils.json_to_sheet(questions);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Questions");
+      XLSX.writeFile(wb, `questions_${detailsCourse.course_id}.xlsx`);
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to download questions.", variant: "destructive" });
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleApproveCourse = async () => {
+    if (!detailsCourse?.course_id) return;
+    setDetailsLoading(true);
+    try {
+      const response = await api.post(`/transaction-view/approve-course/${detailsCourse.course_id}`);
+      toast({ title: "Success", description: response.data.message || "Course approved successfully!", variant: "default" });
+      setDetailsDialogOpen(false);
+      // Optionally refresh the pending courses list
+      fetchPendingCourses();
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to approve course.", variant: "destructive" });
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
@@ -1324,7 +1362,7 @@ export default function AdminPage() {
                                 <SelectTrigger className="col-span-3">
                                   <SelectValue placeholder="Select user" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent style={{ maxHeight: '200px', overflowY: 'auto', paddingBottom: '8px' }}>
                                   {users.map((user) => (
                                     <SelectItem key={user.user_id} value={user.user_id.toString()}>
                                       {user.username}
@@ -1763,7 +1801,7 @@ export default function AdminPage() {
                          <SelectTrigger id="selectCourseForValidity" className="col-span-3">
                            <SelectValue placeholder="Select a course" />
                          </SelectTrigger>
-                         <SelectContent>
+                         <SelectContent style={{ maxHeight: '200px', overflowY: 'auto', paddingBottom: '8px' }}>
                            {/* Use the filtered batchCourses state */}
                            {batchCourses.map((course: any) => (
                                <SelectItem key={course.course_id} value={course.course_id.toString()}>
@@ -1785,85 +1823,274 @@ export default function AdminPage() {
             </CardContent>
           </Card>
 
-          {/* Yet to Approve Section */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Yet to Approve</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Pending Course Approvals</h3>
-                {pendingCoursesLoading ? (
-                  <div>Loading pending courses...</div>
-                ) : pendingCoursesError ? (
-                  <div className="text-red-500">{pendingCoursesError}</div>
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {pendingCourses.length === 0 ? (
-                      <div className="col-span-full text-center text-gray-500">No pending courses found.</div>
-                    ) : (
-                      pendingCourses.map((course) => (
-                        <Card key={course.course_id} className="border-l-4 border-l-orange-500">
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start mb-2">
-                              <h4 className="font-semibold line-clamp-1">{course.course_name}</h4>
-                              {course.course_type && (
-                                <Badge variant={course.course_type.toLowerCase() === "free" ? "secondary" : undefined}>
-                                  {course.course_type.charAt(0).toUpperCase() + course.course_type.slice(1)}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500 mb-2 line-clamp-3">{course.course_short_description}</p>
-                            <div className="flex justify-between text-sm text-gray-500 mb-3">
-                              <span>{course.course_duration_hours}h {course.course_duration_minutes}m</span>
-                              {course.rating && <span>⭐ {course.rating}</span>}
-                            </div>
-                            
-                            {/* Progress Bar */}
-                            <div className="mb-3">
-                              <div className="flex justify-between text-xs text-gray-600 mb-1">
-                                <span>Content Generation Progress</span>
-                                <span>{course.progress}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full transition-all duration-300 ${
-                                    course.progress === 100 ? 'bg-green-500' : 'bg-orange-500'
-                                  }`}
-                                  style={{ width: `${course.progress}%` }}
-                                ></div>
-                              </div>
-                            </div>
-
-                            {/* Status and Actions */}
-                            <div className="flex justify-between items-center">
-                              <div className="text-xs text-gray-600">
-                                {course.latest_status === "completed" ? (
-                                  <span className="text-green-600 font-medium">✓ Ready for Approval</span>
-                                ) : (
-                                  <span className="text-orange-600 font-medium">⏳ Generating Content</span>
-                                )}
-                              </div>
-                              <div className="flex gap-2">
-                                {course.latest_status === "completed" && (
-                                  <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                                    Approve
-                                  </Button>
-                                )}
-                                <Button size="sm" variant="outline" onClick={() => handleViewDetails(course)}>
-                                  View Details
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
+  
+              {/* QC Batch Analytics Tree View */}
+      <div className="mt-8">
+        <h3 className="text-lg font-semibold mb-4">QC Batch Analytics</h3>
+        {qcAnalyticsLoading ? (
+          // Skeleton loader for QC tree view
+          <div className="space-y-4">
+            {[...Array(3)].map((_, batchIndex) => (
+              <div key={batchIndex} className="border rounded-md p-4 space-y-2">
+                <div className="flex items-center justify-between w-full">
+                  <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+                  <div className="h-5 bg-gray-200 rounded w-1/6"></div>
+                </div>
+                <div className="ml-4 mt-2 space-y-2">
+                  {[...Array(2)].map((_, userIndex) => (
+                    <div key={userIndex} className="border-t pt-2 space-y-2">
+                      <div className="flex items-center justify-between w-full">
+                        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                      </div>
+                      <div className="ml-4 mt-2 space-y-2">
+                        {[...Array(1)].map((_, courseIndex) => (
+                          <div key={courseIndex} className="border-t pt-2">
+                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/3 mt-1"></div>
+                            <div className="h-4 bg-gray-200 rounded w-1/4 mt-1"></div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : qcAnalyticsError ? (
+          <div className="text-red-500">{qcAnalyticsError}</div>
+        ) : (
+          qcBatchesData.length === 0 ? (
+            <div className="text-gray-500">No QC batch data available.</div>
+          ) : (
+            <div className="space-y-4 text-gray-700">
+              {qcBatchesData.map((batch) => (
+                <div key={batch.qc_id} className={`border rounded-md p-4 ${batch.is_root ? 'bg-gray-100' : 'bg-gray-50'}`}>
+                  <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${batch.qc_id}`)}>
+                    <span>
+                      {expandedNodes.has(`qc-batch-${batch.qc_id}`) ? (
+                        <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                      )}
+                      {batch.is_root ? '▼ ' : ''}{batch.batch_name} {!batch.is_root && `(${batch.users.length} Users)`}
+                    </span>
                   </div>
+                  {expandedNodes.has(`qc-batch-${batch.qc_id}`) && (
+                    <div className={`mt-4 space-y-4 ${!batch.is_root ? 'ml-6 border-l pl-4' : ''}`}>
+                      {batch.is_root && batch.children && batch.children.map((childBatch: any) => (
+                        <div key={childBatch.qc_id} className="border rounded-md p-4 bg-gray-50">
+                          <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${childBatch.qc_id}`)}>
+                            <span>
+                              {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) ? (
+                                <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
+                              )}
+                              Batch: {childBatch.batch_name} ({childBatch.users.length} Users)
+                            </span>
+                          </div>
+                          {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) && (
+                            <div className="ml-6 mt-4 space-y-4 border-l pl-4">
+                              {childBatch.users.map((user: any) => (
+                                <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <button onClick={() => toggleNode(`qc-user-${childBatch.qc_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
+                                      <span>
+                                        {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) ? (
+                                          <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        ) : (
+                                          <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-500" />
+                                        )}
+                                        User: {user.username} ({user.courses.length} Courses)
+                                      </span>
+                                    </button>
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setCurrentQCUser(user);
+                                          setCurrentQCBatch(childBatch);
+                                          setIsAddQCCourseDialogOpen(true);
+                                          setSelectedCourseToAddQC(null);
+                                          setValidityDaysAddQCCourse("30");
+                                        }}
+                                      >
+                                        Add Course
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) && (
+                                    <div className="ml-6 mt-3 space-y-2 border-l pl-4 text-gray-600">
+                                      {user.courses.map((course: any) => (
+                                        <div key={course.course_name} className="border-b last:border-b-0 pb-3 text-sm space-y-1">
+                                          <div className="flex items-center justify-between">
+                                            <div className="font-medium">Course: {course.course_name}</div>
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              onClick={() => {
+                                                setCurrentQCUser(user);
+                                                setCurrentQCBatch(childBatch);
+                                                setSelectedCourseToExtendQC(course.course_id);
+                                                setIsExtendQCCourseValidityDialogOpen(true);
+                                                setExtendValidityDaysQC("30");
+                                              }}
+                                            >
+                                              Extend Validity
+                                            </Button>
+                                          </div>
+                                          <div>Enrollment Status: <span className="font-normal">{course.enrollment_status}</span></div>
+                                          <div>Completion Status: <span className="font-normal">{course.completion_status}</span></div>
+                                          {course.validity !== undefined && course.updated_date && (
+                                            <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+
+      {/* Add QC Course Dialog */}
+      <Dialog open={isAddQCCourseDialogOpen} onOpenChange={setIsAddQCCourseDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Course for User: {currentQCUser?.username}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="selectCourseToAddQC" className="text-right">
+                Select Course
+              </Label>
+              <Select value={selectedCourseToAddQC?.toString() || ""} onValueChange={(value) => setSelectedCourseToAddQC(parseInt(value, 10))}>
+                <SelectTrigger id="selectCourseToAddQC" className="col-span-3">
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent style={{ maxHeight: '200px', overflowY: 'auto', paddingBottom: '8px' }}>
+                  {courses.map((course) => (
+                    <SelectItem key={course.course_id} value={course.course_id.toString()}>
+                      {course.course_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="validityDaysAddQCCourse" className="text-right">
+                Validity (Days)
+              </Label>
+              <Input
+                id="validityDaysAddQCCourse"
+                type="number"
+                value={validityDaysAddQCCourse}
+                onChange={(e) => setValidityDaysAddQCCourse(e.target.value)}
+                className="col-span-3"
+                min="1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddQCCourse} disabled={isLoading || !selectedCourseToAddQC || parseInt(validityDaysAddQCCourse, 10) <= 0}>
+              {isLoading ? "Adding..." : "Add Course"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Extend QC Course Validity Dialog */}
+      <Dialog open={isExtendQCCourseValidityDialogOpen} onOpenChange={setIsExtendQCCourseValidityDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Extend Course Validity for User: {currentQCUser?.username}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="extendValidityDaysQC" className="text-right">
+                Extend By (Days)
+              </Label>
+              <Input
+                id="extendValidityDaysQC"
+                type="number"
+                value={extendValidityDaysQC}
+                onChange={(e) => setExtendValidityDaysQC(e.target.value)}
+                className="col-span-3"
+                min="1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleExtendQCCourseValidity} disabled={isLoading || parseInt(extendValidityDaysQC, 10) <= 0}>
+              {isLoading ? "Extending..." : "Extend Validity"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Course Details: {detailsCourse?.course_name}</DialogTitle>
+          </DialogHeader>
+          {detailsLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <div><b>Course Name:</b> {detailsCourse?.course_name}</div>
+                <div><b>Description:</b> {detailsCourse?.course_short_description}</div>
+                <div><b>Duration:</b> {detailsCourse?.course_duration_hours}h {detailsCourse?.course_duration_minutes}m</div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleDownloadCourseContent} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Course Content</Button>
+                <Button onClick={handleDownloadQuestions} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Questions</Button>
+                <Button onClick={handleApproveCourse} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Approve</Button>
+              </div>
+              <div className="mt-4 max-h-60 overflow-auto">
+                <b>Preview:</b>
+                {detailsContent.length === 0 ? (
+                  <div className="text-gray-500">No content found.</div>
+                ) : (
+                  <table className="min-w-full text-xs border mt-2">
+                    <thead>
+                      <tr>
+                        <th className="border px-2">Master Title</th>
+                        <th className="border px-2">Subtitle</th>
+                        <th className="border px-2">Content</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailsContent.map((row, idx) => (
+                        <tr key={idx}>
+                          <td className="border px-2">{row.course_mastertitle_breakdown}</td>
+                          <td className="border px-2">{row.course_subtitle}</td>
+                          <td className="border px-2">{row.subtitle_content?.slice(0, 60)}...</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
         </TabsContent>
 
         <TabsContent value="courses">
@@ -2214,7 +2441,17 @@ export default function AdminPage() {
                 ) : (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {pendingCourses.length === 0 ? (
-                      <div className="col-span-full text-center text-gray-500">No pending courses found.</div>
+                      <div className="col-span-full flex flex-col items-center justify-center py-12">
+                        <div className="mb-4">
+                          {/* You can use an SVG, an icon from your icon set, or an image */}
+                          <svg width="64" height="64" fill="none" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" fill="#F3F4F6"/>
+                            <path d="M8 12l2 2 4-4" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </div>
+                        <div className="text-lg font-semibold text-gray-700 mb-1">All Set!</div>
+                        <div className="text-gray-500">All courses are up to date. No pending approvals at the moment.</div>
+                      </div>
                     ) : (
                       pendingCourses.map((course) => (
                         <Card key={course.course_id} className="border-l-4 border-l-orange-500">
@@ -2259,11 +2496,6 @@ export default function AdminPage() {
                                 )}
                               </div>
                               <div className="flex gap-2">
-                                {course.latest_status === "completed" && (
-                                  <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
-                                    Approve
-                                  </Button>
-                                )}
                                 <Button size="sm" variant="outline" onClick={() => handleViewDetails(course)}>
                                   View Details
                                 </Button>
@@ -2279,6 +2511,8 @@ export default function AdminPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        
+        
 
         <TabsContent value="settings">
           <Card>
@@ -2292,272 +2526,6 @@ export default function AdminPage() {
         </TabsContent>
       </Tabs>
 
-      {/* QC Batch Analytics Tree View */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold mb-4">QC Batch Analytics</h3>
-        {qcAnalyticsLoading ? (
-          // Skeleton loader for QC tree view
-          <div className="space-y-4">
-            {[...Array(3)].map((_, batchIndex) => (
-              <div key={batchIndex} className="border rounded-md p-4 space-y-2">
-                <div className="flex items-center justify-between w-full">
-                  <div className="h-5 bg-gray-200 rounded w-1/3"></div>
-                  <div className="h-5 bg-gray-200 rounded w-1/6"></div>
-                </div>
-                <div className="ml-4 mt-2 space-y-2">
-                  {[...Array(2)].map((_, userIndex) => (
-                    <div key={userIndex} className="border-t pt-2 space-y-2">
-                      <div className="flex items-center justify-between w-full">
-                        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/6"></div>
-                      </div>
-                      <div className="ml-4 mt-2 space-y-2">
-                        {[...Array(1)].map((_, courseIndex) => (
-                          <div key={courseIndex} className="border-t pt-2">
-                            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/3 mt-1"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/4 mt-1"></div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : qcAnalyticsError ? (
-          <div className="text-red-500">{qcAnalyticsError}</div>
-        ) : (
-          qcBatchesData.length === 0 ? (
-            <div className="text-gray-500">No QC batch data available.</div>
-          ) : (
-            <div className="space-y-4 text-gray-700">
-              {qcBatchesData.map((batch) => (
-                <div key={batch.qc_id} className={`border rounded-md p-4 ${batch.is_root ? 'bg-gray-100' : 'bg-gray-50'}`}>
-                  <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${batch.qc_id}`)}>
-                    <span>
-                      {expandedNodes.has(`qc-batch-${batch.qc_id}`) ? (
-                        <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
-                      )}
-                      {batch.is_root ? '▼ ' : ''}{batch.batch_name} {!batch.is_root && `(${batch.users.length} Users)`}
-                    </span>
-                  </div>
-                  {expandedNodes.has(`qc-batch-${batch.qc_id}`) && (
-                    <div className={`mt-4 space-y-4 ${!batch.is_root ? 'ml-6 border-l pl-4' : ''}`}>
-                      {batch.is_root && batch.children && batch.children.map((childBatch: any) => (
-                        <div key={childBatch.qc_id} className="border rounded-md p-4 bg-gray-50">
-                          <div className="flex items-center justify-between w-full text-left font-semibold hover:text-gray-800 cursor-pointer" onClick={() => toggleNode(`qc-batch-${childBatch.qc_id}`)}>
-                            <span>
-                              {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) ? (
-                                <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-600" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-600" />
-                              )}
-                              Batch: {childBatch.batch_name} ({childBatch.users.length} Users)
-                            </span>
-                          </div>
-                          {expandedNodes.has(`qc-batch-${childBatch.qc_id}`) && (
-                            <div className="ml-6 mt-4 space-y-4 border-l pl-4">
-                              {childBatch.users.map((user: any) => (
-                                <div key={user.username} className="border-b last:border-b-0 pb-4 space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <button onClick={() => toggleNode(`qc-user-${childBatch.qc_id}-${user.username}`)} className="flex items-center justify-between w-full text-left font-medium hover:text-gray-700">
-                                      <span>
-                                        {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) ? (
-                                          <ChevronDown className="h-4 w-4 inline-block mr-1 text-gray-500" />
-                                        ) : (
-                                          <ChevronRight className="h-4 w-4 inline-block mr-1 text-gray-500" />
-                                        )}
-                                        User: {user.username} ({user.courses.length} Courses)
-                                      </span>
-                                    </button>
-                                    <div className="flex items-center gap-2">
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setCurrentQCUser(user);
-                                          setCurrentQCBatch(childBatch);
-                                          setIsAddQCCourseDialogOpen(true);
-                                          setSelectedCourseToAddQC(null);
-                                          setValidityDaysAddQCCourse("30");
-                                        }}
-                                      >
-                                        Add Course
-                                      </Button>
-                                    </div>
-                                  </div>
-                                  {expandedNodes.has(`qc-user-${childBatch.qc_id}-${user.username}`) && (
-                                    <div className="ml-6 mt-3 space-y-2 border-l pl-4 text-gray-600">
-                                      {user.courses.map((course: any) => (
-                                        <div key={course.course_name} className="border-b last:border-b-0 pb-3 text-sm space-y-1">
-                                          <div className="flex items-center justify-between">
-                                            <div className="font-medium">Course: {course.course_name}</div>
-                                            <Button
-                                              variant="outline"
-                                              size="sm"
-                                              onClick={() => {
-                                                setCurrentQCUser(user);
-                                                setCurrentQCBatch(childBatch);
-                                                setSelectedCourseToExtendQC(course.course_id);
-                                                setIsExtendQCCourseValidityDialogOpen(true);
-                                                setExtendValidityDaysQC("30");
-                                              }}
-                                            >
-                                              Extend Validity
-                                            </Button>
-                                          </div>
-                                          <div>Enrollment Status: <span className="font-normal">{course.enrollment_status}</span></div>
-                                          <div>Completion Status: <span className="font-normal">{course.completion_status}</span></div>
-                                          {course.validity !== undefined && course.updated_date && (
-                                            <BatchCourseValidityDisplay validity={course.validity} updatedDate={course.updated_date} />
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )
-        )}
-      </div>
-
-      {/* Add QC Course Dialog */}
-      <Dialog open={isAddQCCourseDialogOpen} onOpenChange={setIsAddQCCourseDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add Course for User: {currentQCUser?.username}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="selectCourseToAddQC" className="text-right">
-                Select Course
-              </Label>
-              <Select value={selectedCourseToAddQC?.toString() || ""} onValueChange={(value) => setSelectedCourseToAddQC(parseInt(value, 10))}>
-                <SelectTrigger id="selectCourseToAddQC" className="col-span-3">
-                  <SelectValue placeholder="Select a course" />
-                </SelectTrigger>
-                <SelectContent>
-                  {courses.map((course) => (
-                    <SelectItem key={course.course_id} value={course.course_id.toString()}>
-                      {course.course_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="validityDaysAddQCCourse" className="text-right">
-                Validity (Days)
-              </Label>
-              <Input
-                id="validityDaysAddQCCourse"
-                type="number"
-                value={validityDaysAddQCCourse}
-                onChange={(e) => setValidityDaysAddQCCourse(e.target.value)}
-                className="col-span-3"
-                min="1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleAddQCCourse} disabled={isLoading || !selectedCourseToAddQC || parseInt(validityDaysAddQCCourse, 10) <= 0}>
-              {isLoading ? "Adding..." : "Add Course"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Extend QC Course Validity Dialog */}
-      <Dialog open={isExtendQCCourseValidityDialogOpen} onOpenChange={setIsExtendQCCourseValidityDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Extend Course Validity for User: {currentQCUser?.username}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="extendValidityDaysQC" className="text-right">
-                Extend By (Days)
-              </Label>
-              <Input
-                id="extendValidityDaysQC"
-                type="number"
-                value={extendValidityDaysQC}
-                onChange={(e) => setExtendValidityDaysQC(e.target.value)}
-                className="col-span-3"
-                min="1"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={handleExtendQCCourseValidity} disabled={isLoading || parseInt(extendValidityDaysQC, 10) <= 0}>
-              {isLoading ? "Extending..." : "Extend Validity"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Course Details: {detailsCourse?.course_name}</DialogTitle>
-          </DialogHeader>
-          {detailsLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <>
-              <div className="mb-4">
-                <div><b>Course Name:</b> {detailsCourse?.course_name}</div>
-                <div><b>Description:</b> {detailsCourse?.course_short_description}</div>
-                <div><b>Duration:</b> {detailsCourse?.course_duration_hours}h {detailsCourse?.course_duration_minutes}m</div>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleDownloadCourseContent}>Download Course Content</Button>
-                <Button disabled>Download Questions</Button>
-                <Button disabled>Approve</Button>
-              </div>
-              <div className="mt-4 max-h-60 overflow-auto">
-                <b>Preview:</b>
-                {detailsContent.length === 0 ? (
-                  <div className="text-gray-500">No content found.</div>
-                ) : (
-                  <table className="min-w-full text-xs border mt-2">
-                    <thead>
-                      <tr>
-                        <th className="border px-2">Master Title</th>
-                        <th className="border px-2">Subtitle</th>
-                        <th className="border px-2">Content</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailsContent.map((row, idx) => (
-                        <tr key={idx}>
-                          <td className="border px-2">{row.course_mastertitle_breakdown}</td>
-                          <td className="border px-2">{row.course_subtitle}</td>
-                          <td className="border px-2">{row.subtitle_content?.slice(0, 60)}...</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   )
 } 

@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button"
 import { debounce } from "lodash"
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Book, Lightbulb, AlertTriangle, Info, Star } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import ReactMarkdown from "react-markdown";
+import React from "react";
 
 interface CourseContentItem {
   course_mastertitle_breakdown_id: number
@@ -205,6 +207,63 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
   const allQuestionsAnsweredCorrectly = Array.isArray(assessmentData?.questions) && assessmentData.questions.length > 0 &&
     assessmentData.questions.every(question => answerStatus[question.question_id] === true);
 
+  // Preprocess markdown for better readability: add blank lines before and after bold headers
+  function preprocessMarkdown(md: string) {
+    let processed = md.replace(/([^\n])\n?(\*\*[\w\d .#:-]+\*\*:?)/g, '$1\n\n$2');
+    processed = processed.replace(/(\*\*[\w\d .#:-]+\*\*:?)(?!\n\n)/g, '$1\n\n');
+    return processed;
+  }
+
+  // Custom heading renderer with color and icon
+  const HeadingRenderer = ({ level, children }) => {
+    let color = "text-primary";
+    let icon = null;
+    // Convert children to string for matching
+    const text = Array.isArray(children) ? children.map(c => (typeof c === 'string' ? c : '')).join(' ') : String(children);
+    if (level === 2) icon = <Book className="inline mr-2 text-orange-400" size={22} />;
+    if (level === 3 && /example/i.test(text)) icon = <Lightbulb className="inline mr-2 text-yellow-500" size={20} />;
+    if (level === 3 && /note/i.test(text)) icon = <Info className="inline mr-2 text-blue-500" size={20} />;
+    if (level === 3 && /warning/i.test(text)) icon = <AlertTriangle className="inline mr-2 text-red-500" size={20} />;
+    if (level === 3 && /best practice/i.test(text)) icon = <Star className="inline mr-2 text-green-500" size={20} />;
+    return React.createElement(
+      `h${level}`,
+      { className: `font-bold mb-2 mt-6 ${color}` },
+      <>{icon}{children}</>
+    );
+  };
+
+  // Callout block for Note, Tip, Warning
+  const ParagraphRenderer = ({ children }) => {
+    const text = children[0];
+    if (typeof text === "string") {
+      if (text.startsWith("Note:")) {
+        return (
+          <div className="flex items-start bg-blue-50 border-l-4 border-blue-400 p-3 rounded mb-4">
+            <Info className="text-blue-400 mr-2 mt-1" size={18} />
+            <span className="text-blue-900">{text.replace("Note:", "").trim()}</span>
+          </div>
+        );
+      }
+      if (text.startsWith("Warning:")) {
+        return (
+          <div className="flex items-start bg-red-50 border-l-4 border-red-400 p-3 rounded mb-4">
+            <AlertTriangle className="text-red-400 mr-2 mt-1" size={18} />
+            <span className="text-red-900">{text.replace("Warning:", "").trim()}</span>
+          </div>
+        );
+      }
+      if (text.startsWith("Tip:")) {
+        return (
+          <div className="flex items-start bg-green-50 border-l-4 border-green-400 p-3 rounded mb-4">
+            <Lightbulb className="text-green-400 mr-2 mt-1" size={18} />
+            <span className="text-green-900">{text.replace("Tip:", "").trim()}</span>
+          </div>
+        );
+      }
+    }
+    return <p className="mb-4">{children}</p>;
+  };
+
   if (!currentContent && !showAssessmentContent) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -289,14 +348,19 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
     <div ref={contentRef} className="mt-6 overflow-auto h-[calc(100vh-120px)] pb-5 pr-4">
       {currentContent && (
         <>
-          <h2 className="text-2xl font-bold mb-6 text-primary">{currentContent.course_subtitle}</h2>
-
-          <div className="prose max-w-none">
-            {currentContent.subtitle_content.split("\n\n").map((paragraph, index) => (
-              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                {paragraph}
-              </p>
-            ))}
+          <h2 className="text-2xl font-bold text-primary mb-2">{currentContent.course_subtitle}</h2>
+          <hr className="my-4 border-orange-300" />
+          {/* Enhanced Markdown Content */}
+          <div className="prose prose-lg max-w-none mb-8 prose-headings:text-primary prose-h2:mb-2 prose-h3:mb-2 prose-h4:mb-2 prose-p:mb-4 prose-li:mb-2 prose-blockquote:border-l-4 prose-blockquote:border-orange-300 prose-blockquote:bg-orange-50 prose-blockquote:p-4 prose-blockquote:rounded prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-md prose-pre:overflow-x-auto">
+            <ReactMarkdown
+              components={{
+                h2: HeadingRenderer,
+                h3: HeadingRenderer,
+                p: ParagraphRenderer,
+              }}
+            >
+              {preprocessMarkdown(currentContent.subtitle_content)}
+            </ReactMarkdown>
           </div>
 
           {currentContent.subtitle_code && (
