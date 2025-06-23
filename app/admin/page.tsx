@@ -172,6 +172,9 @@ export default function AdminPage() {
   const [detailsCourse, setDetailsCourse] = useState<any>(null);
   const [detailsContent, setDetailsContent] = useState<any[]>([]);
 
+  // Add activeTab state for tab tracking
+  const [activeTab, setActiveTab] = useState("global-analysis");
+
   // Logout function
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -1138,7 +1141,18 @@ export default function AdminPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="global-analysis" className="space-y-4">
+      <Tabs
+        value={activeTab}
+        onValueChange={(tab) => {
+          setActiveTab(tab);
+          // Reset dialog state when switching tabs
+          setDetailsDialogOpen(false);
+          setDetailsCourse(null);
+          setDetailsContent([]);
+          setDetailsLoading(false);
+        }}
+        className="space-y-4"
+      >
         <TabsList>
           <TabsTrigger value="global-analysis">Global Analysis</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
@@ -2042,54 +2056,6 @@ export default function AdminPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Course Details: {detailsCourse?.course_name}</DialogTitle>
-          </DialogHeader>
-          {detailsLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <>
-              <div className="mb-4">
-                <div><b>Course Name:</b> {detailsCourse?.course_name}</div>
-                <div><b>Description:</b> {detailsCourse?.course_short_description}</div>
-                <div><b>Duration:</b> {detailsCourse?.course_duration_hours}h {detailsCourse?.course_duration_minutes}m</div>
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleDownloadCourseContent} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Course Content</Button>
-                <Button onClick={handleDownloadQuestions} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Questions</Button>
-                <Button onClick={handleApproveCourse} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Approve</Button>
-              </div>
-              <div className="mt-4 max-h-60 overflow-auto">
-                <b>Preview:</b>
-                {detailsContent.length === 0 ? (
-                  <div className="text-gray-500">No content found.</div>
-                ) : (
-                  <table className="min-w-full text-xs border mt-2">
-                    <thead>
-                      <tr>
-                        <th className="border px-2">Master Title</th>
-                        <th className="border px-2">Subtitle</th>
-                        <th className="border px-2">Content</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detailsContent.map((row, idx) => (
-                        <tr key={idx}>
-                          <td className="border px-2">{row.course_mastertitle_breakdown}</td>
-                          <td className="border px-2">{row.course_subtitle}</td>
-                          <td className="border px-2">{row.subtitle_content?.slice(0, 60)}...</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
 
         </TabsContent>
 
@@ -2510,6 +2476,55 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
+          <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Course Details: {detailsCourse?.course_name}</DialogTitle>
+          </DialogHeader>
+          {detailsLoading ? (
+            <div>Loading...</div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <div><b>Course Name:</b> {detailsCourse?.course_name}</div>
+                <div><b>Description:</b> {detailsCourse?.course_short_description}</div>
+                <div><b>Duration:</b> {detailsCourse?.course_duration_hours}h {detailsCourse?.course_duration_minutes}m</div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleDownloadCourseContent} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Course Content</Button>
+                <Button onClick={handleDownloadQuestions} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Download Questions</Button>
+                <Button onClick={handleApproveCourse} disabled={detailsCourse?.progress !== 100 || detailsLoading}>Approve</Button>
+              </div>
+              <div className="mt-4 max-h-60 overflow-auto">
+                <b>Preview:</b>
+                {detailsContent.length === 0 ? (
+                  <div className="text-gray-500">No content found.</div>
+                ) : (
+                  <table className="min-w-full text-xs border mt-2">
+                    <thead>
+                      <tr>
+                        <th className="border px-2">Master Title</th>
+                        <th className="border px-2">Subtitle</th>
+                        <th className="border px-2">Content</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detailsContent.map((row, idx) => (
+                        <tr key={idx}>
+                          <td className="border px-2">{row.course_mastertitle_breakdown}</td>
+                          <td className="border px-2">{row.course_subtitle}</td>
+                          <td className="border px-2">{row.subtitle_content?.slice(0, 60)}...</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
         </TabsContent>
         
         
