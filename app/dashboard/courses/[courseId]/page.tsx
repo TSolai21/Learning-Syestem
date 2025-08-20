@@ -31,6 +31,7 @@ export default function CourseDetailsPage() {
   const [courseDetails, setCourseDetails] = useState<CourseDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [enrolling, setEnrolling] = useState(false)
+  const [pptLoading, setPptLoading] = useState(false)
 
   const courseId = params.courseId as string
 
@@ -95,6 +96,35 @@ export default function CourseDetailsPage() {
     router.push(`/dashboard/courses/${courseId}/learn`)
   }
 
+  const handleViewPpt = async () => {
+    try {
+      setPptLoading(true)
+      // Open a blank tab immediately to avoid popup blockers
+      const newTab = window.open("about:blank", "_blank", "noopener,noreferrer")
+      const response = await api.get(`/course-ppt-url/${courseId}`)
+      const pptUrl = (response as any)?.data?.ppt_url
+      if (pptUrl) {
+        if (newTab) {
+          newTab.location.href = pptUrl
+        } else {
+          window.open(pptUrl, "_blank", "noopener,noreferrer")
+        }
+      } else {
+        toast({
+          title: "PPT not found",
+          description: "No PPT available for this course",
+          variant: "destructive",
+        })
+      }
+    } catch (error: any) {
+      console.error("Error fetching PPT URL:", error)
+      const msg = error?.response?.data?.message || "Failed to fetch PPT URL"
+      toast({ title: "Error", description: msg, variant: "destructive" })
+    } finally {
+      setPptLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -139,8 +169,8 @@ export default function CourseDetailsPage() {
             <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">{course.course_name}</h1>
             <p className="text-lg mb-6">{course.course_description}</p>
 
-            {/* CTA Button */}
-            <div className="mt-6">
+            {/* CTA Buttons */}
+            <div className="mt-6 flex items-center gap-3 flex-wrap">
               {course.enroll ? (
                 <Button onClick={handleContinueLearning} className="text-lg py-6 px-8">
                   Continue Learning
@@ -150,6 +180,9 @@ export default function CourseDetailsPage() {
                   {enrolling ? "Enrolling..." : "Enroll Now"}
                 </Button>
               )}
+              <Button variant="outline" onClick={handleViewPpt} disabled={pptLoading} className="text-lg py-6 px-8">
+                {pptLoading ? "Opening..." : "View PPT"}
+              </Button>
             </div>
           </div>
 
