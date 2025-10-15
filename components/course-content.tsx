@@ -214,54 +214,208 @@ export function CourseContent({ data, selectedContentId, updateProgress, overall
     return processed;
   }
 
-  // Custom heading renderer with color and icon
+  // Custom heading renderer with enhanced styling and content type detection
   const HeadingRenderer = ({ level, children }) => {
-    let color = "text-primary";
-    let icon = null;
+    // Validate level parameter and default to h2 if invalid
+    const validLevel = (typeof level === 'number' && level >= 1 && level <= 6) ? level : 2;
+    
     // Convert children to string for matching
     const text = Array.isArray(children) ? children.map(c => (typeof c === 'string' ? c : '')).join(' ') : String(children);
-    if (level === 2) icon = <Book className="inline mr-2 text-orange-400" size={22} />;
-    if (level === 3 && /example/i.test(text)) icon = <Lightbulb className="inline mr-2 text-yellow-500" size={20} />;
-    if (level === 3 && /note/i.test(text)) icon = <Info className="inline mr-2 text-blue-500" size={20} />;
-    if (level === 3 && /warning/i.test(text)) icon = <AlertTriangle className="inline mr-2 text-red-500" size={20} />;
-    if (level === 3 && /best practice/i.test(text)) icon = <Star className="inline mr-2 text-green-500" size={20} />;
+    
+    let color = "text-primary";
+    let icon = null;
+    let bgColor = "";
+    let borderColor = "";
+    let padding = "";
+    let borderRadius = "";
+    
+    // Enhanced styling based on content type and level
+    if (validLevel === 1) {
+      // Main course title
+      color = "text-orange-600";
+      icon = <Book className="inline mr-3 text-orange-500" size={28} />;
+      bgColor = "bg-gradient-to-r from-orange-50 to-orange-100";
+      padding = "p-4";
+      borderRadius = "rounded-lg";
+    } else if (validLevel === 2) {
+      // Module/section titles
+      color = "text-orange-700";
+      icon = <Book className="inline mr-2 text-orange-500" size={24} />;
+      bgColor = "bg-orange-50";
+      padding = "p-3";
+      borderRadius = "rounded-md";
+      borderColor = "border-l-4 border-orange-400";
+    } else if (validLevel === 3) {
+      // Subsection titles with content type detection
+      if (/introduction|overview|getting started/i.test(text)) {
+        color = "text-blue-700";
+        icon = <Info className="inline mr-2 text-blue-500" size={20} />;
+        bgColor = "bg-blue-50";
+        borderColor = "border-l-4 border-blue-400";
+      } else if (/key points?|important|main|core/i.test(text)) {
+        color = "text-purple-700";
+        icon = <Star className="inline mr-2 text-purple-500" size={20} />;
+        bgColor = "bg-purple-50";
+        borderColor = "border-l-4 border-purple-400";
+      } else if (/example|demo|sample/i.test(text)) {
+        color = "text-yellow-700";
+        icon = <Lightbulb className="inline mr-2 text-yellow-500" size={20} />;
+        bgColor = "bg-yellow-50";
+        borderColor = "border-l-4 border-yellow-400";
+      } else if (/note|tip|hint/i.test(text)) {
+        color = "text-blue-700";
+        icon = <Info className="inline mr-2 text-blue-500" size={20} />;
+        bgColor = "bg-blue-50";
+        borderColor = "border-l-4 border-blue-400";
+      } else if (/warning|caution|important/i.test(text)) {
+        color = "text-red-700";
+        icon = <AlertTriangle className="inline mr-2 text-red-500" size={20} />;
+        bgColor = "bg-red-50";
+        borderColor = "border-l-4 border-red-400";
+      } else if (/best practice|recommendation|guideline/i.test(text)) {
+        color = "text-green-700";
+        icon = <Star className="inline mr-2 text-green-500" size={20} />;
+        bgColor = "bg-green-50";
+        borderColor = "border-l-4 border-green-400";
+      } else if (/exercise|practice|activity/i.test(text)) {
+        color = "text-indigo-700";
+        icon = <Book className="inline mr-2 text-indigo-500" size={20} />;
+        bgColor = "bg-indigo-50";
+        borderColor = "border-l-4 border-indigo-400";
+      } else {
+        // Default styling for h3
+        color = "text-gray-700";
+        icon = <Book className="inline mr-2 text-gray-500" size={20} />;
+        bgColor = "bg-gray-50";
+        borderColor = "border-l-4 border-gray-400";
+      }
+      padding = "p-3";
+      borderRadius = "rounded-md";
+    } else if (validLevel === 4) {
+      // Sub-subsection titles
+      color = "text-gray-600";
+      icon = <Book className="inline mr-2 text-gray-500" size={18} />;
+      bgColor = "bg-gray-50";
+      padding = "p-2";
+      borderRadius = "rounded";
+      borderColor = "border-l-2 border-gray-300";
+    } else {
+      // Default for other levels
+      color = "text-gray-600";
+      icon = <Book className="inline mr-2 text-gray-500" size={16} />;
+    }
+    
     return React.createElement(
-      `h${level}`,
-      { className: `font-bold mb-2 mt-6 ${color}` },
+      `h${validLevel}`,
+      { 
+        className: `font-bold mb-4 mt-6 ${color} ${bgColor} ${padding} ${borderRadius} ${borderColor} shadow-sm` 
+      },
       <>{icon}{children}</>
     );
   };
 
-  // Callout block for Note, Tip, Warning
+  // Enhanced callout block for different content types
   const ParagraphRenderer = ({ children }) => {
     const text = children[0];
     if (typeof text === "string") {
+      // Introduction/Overview callouts
+      if (text.startsWith("Introduction:") || text.startsWith("Overview:")) {
+        return (
+          <div className="flex items-start bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Info className="text-blue-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-blue-800 font-semibold block mb-1">Introduction</span>
+              <span className="text-blue-900">{text.replace(/^(Introduction:|Overview:)/, "").trim()}</span>
+            </div>
+          </div>
+        );
+      }
+      // Key Points callouts
+      if (text.startsWith("Key Point:") || text.startsWith("Important:")) {
+        return (
+          <div className="flex items-start bg-purple-50 border-l-4 border-purple-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Star className="text-purple-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-purple-800 font-semibold block mb-1">Key Point</span>
+              <span className="text-purple-900">{text.replace(/^(Key Point:|Important:)/, "").trim()}</span>
+            </div>
+          </div>
+        );
+      }
+      // Example callouts
+      if (text.startsWith("Example:") || text.startsWith("Demo:")) {
+        return (
+          <div className="flex items-start bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Lightbulb className="text-yellow-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-yellow-800 font-semibold block mb-1">Example</span>
+              <span className="text-yellow-900">{text.replace(/^(Example:|Demo:)/, "").trim()}</span>
+            </div>
+          </div>
+        );
+      }
+      // Note callouts
       if (text.startsWith("Note:")) {
         return (
-          <div className="flex items-start bg-blue-50 border-l-4 border-blue-400 p-3 rounded mb-4">
-            <Info className="text-blue-400 mr-2 mt-1" size={18} />
-            <span className="text-blue-900">{text.replace("Note:", "").trim()}</span>
+          <div className="flex items-start bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Info className="text-blue-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-blue-800 font-semibold block mb-1">Note</span>
+              <span className="text-blue-900">{text.replace("Note:", "").trim()}</span>
+            </div>
           </div>
         );
       }
-      if (text.startsWith("Warning:")) {
+      // Warning callouts
+      if (text.startsWith("Warning:") || text.startsWith("Caution:")) {
         return (
-          <div className="flex items-start bg-red-50 border-l-4 border-red-400 p-3 rounded mb-4">
-            <AlertTriangle className="text-red-400 mr-2 mt-1" size={18} />
-            <span className="text-red-900">{text.replace("Warning:", "").trim()}</span>
+          <div className="flex items-start bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mb-6 shadow-sm">
+            <AlertTriangle className="text-red-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-red-800 font-semibold block mb-1">Warning</span>
+              <span className="text-red-900">{text.replace(/^(Warning:|Caution:)/, "").trim()}</span>
+            </div>
           </div>
         );
       }
-      if (text.startsWith("Tip:")) {
+      // Tip callouts
+      if (text.startsWith("Tip:") || text.startsWith("Hint:")) {
         return (
-          <div className="flex items-start bg-green-50 border-l-4 border-green-400 p-3 rounded mb-4">
-            <Lightbulb className="text-green-400 mr-2 mt-1" size={18} />
-            <span className="text-green-900">{text.replace("Tip:", "").trim()}</span>
+          <div className="flex items-start bg-green-50 border-l-4 border-green-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Lightbulb className="text-green-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-green-800 font-semibold block mb-1">Tip</span>
+              <span className="text-green-900">{text.replace(/^(Tip:|Hint:)/, "").trim()}</span>
+            </div>
+          </div>
+        );
+      }
+      // Best Practice callouts
+      if (text.startsWith("Best Practice:") || text.startsWith("Recommendation:")) {
+        return (
+          <div className="flex items-start bg-green-50 border-l-4 border-green-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Star className="text-green-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-green-800 font-semibold block mb-1">Best Practice</span>
+              <span className="text-green-900">{text.replace(/^(Best Practice:|Recommendation:)/, "").trim()}</span>
+            </div>
+          </div>
+        );
+      }
+      // Exercise/Practice callouts
+      if (text.startsWith("Exercise:") || text.startsWith("Practice:") || text.startsWith("Activity:")) {
+        return (
+          <div className="flex items-start bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded-lg mb-6 shadow-sm">
+            <Book className="text-indigo-500 mr-3 mt-1" size={20} />
+            <div>
+              <span className="text-indigo-800 font-semibold block mb-1">Exercise</span>
+              <span className="text-indigo-900">{text.replace(/^(Exercise:|Practice:|Activity:)/, "").trim()}</span>
+            </div>
           </div>
         );
       }
     }
-    return <p className="mb-4">{children}</p>;
+    return <p className="mb-4 text-gray-700 leading-relaxed">{children}</p>;
   };
 
   if (!currentContent && !showAssessmentContent) {
