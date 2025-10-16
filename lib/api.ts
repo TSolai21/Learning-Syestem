@@ -1,8 +1,8 @@
 import axios, { AxiosError } from "axios"
 
 export const api = axios.create({
-  baseURL: "https://lms-be-204519078454.asia-south1.run.app/api",
-  // baseURL: "http://localhost:5000/api",
+  // baseURL: "https://lms-be-204519078454.asia-south1.run.app/api",
+  baseURL: "http://localhost:5000/api",
 })
 
 // Add a request interceptor to include auth token if available
